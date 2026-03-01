@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  order     Int      @default(0)
+  news      News[]
+}
+
+model Neighborhood {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  province  String?
+  city      String?
+  news      News[]
+}
+
+model News {
+  id            String       @id @default(cuid())
+  title         String
+  slug          String       @unique
+  summary        String?
+  body          String
+  imageUrl      String?
+  categoryId    String
+  category      Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  neighborhoodId String?
+  neighborhood  Neighborhood? @relation(fields: [neighborhoodId], references: [id], onDelete: SetNull)
+  published     Boolean      @default(false)
+  featured      Boolean      @default(false)
+  viewCount     Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
