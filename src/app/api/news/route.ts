@@ -6,7 +6,7 @@ function slugify(text: string): string {
   return text
     .trim()
     .replace(/\s+/g, '-')
-    .replace(/[^\p{L}\p{N}-]/gu, '')
+    .replace(/[^a-zA-Z0-9\u0600-\u06FF-]/g, '')
     .toLowerCase();
 }
 
