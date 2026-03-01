@@ -9,7 +9,7 @@ export default async function AdminPage() {
 
   const news = await prisma.news.findMany({
     orderBy: { createdAt: 'desc' },
-    include: { category: true, neighborhood: true },
+    include: { categories: true, neighborhood: true },
   });
 
   return (
@@ -26,8 +26,12 @@ export default async function AdminPage() {
         {news.map((n) => (
           <div key={n.id} className="bg-white rounded-lg shadow p-4">
             <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{n.title}</h3>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <span className="text-xs text-gray-500">{n.category.name}</span>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {n.categories.map((c) => (
+                <span key={c.id} className="text-xs bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded">
+                  {c.name}
+                </span>
+              ))}
               {n.neighborhood && <span className="text-xs text-gray-500">· {n.neighborhood.name}</span>}
               <span className="text-xs text-gray-400">· {new Date(n.createdAt).toLocaleDateString('fa-IR')}</span>
             </div>
@@ -61,7 +65,7 @@ export default async function AdminPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">عنوان</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">دسته</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">دسته‌ها</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">محله</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
@@ -72,7 +76,15 @@ export default async function AdminPage() {
             {news.map((n) => (
               <tr key={n.id}>
                 <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{n.title}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{n.category.name}</td>
+                <td className="px-4 py-3 text-sm">
+                  <div className="flex flex-wrap gap-1">
+                    {n.categories.map((c) => (
+                      <span key={c.id} className="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-xs">
+                        {c.name}
+                      </span>
+                    ))}
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-sm text-gray-600">{n.neighborhood?.name ?? '—'}</td>
                 <td className="px-4 py-3">
                   <span

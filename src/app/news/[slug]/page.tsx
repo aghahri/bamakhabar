@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { NewsImage } from '@/components/NewsImage';
+import { renderBody } from '@/lib/sanitize';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -19,7 +20,7 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const news = await prisma.news.findUnique({
     where: { slug, published: true },
-    include: { category: true, neighborhood: true },
+    include: { categories: true, neighborhood: true },
   });
   if (!news) notFound();
 
@@ -36,14 +37,20 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
     minute: '2-digit',
   });
 
+  const htmlBody = renderBody(news.body);
+
   return (
     <article className="max-w-4xl">
       <nav className="text-sm text-gray-500 mb-4">
         <Link href="/" className="hover:text-[var(--bama-primary)]">باماخبر</Link>
-        <span className="mx-2">/</span>
-        <Link href={`/category/${news.category.slug}`} className="hover:text-[var(--bama-primary)]">
-          {news.category.name}
-        </Link>
+        {news.categories.map((cat) => (
+          <span key={cat.id}>
+            <span className="mx-2">/</span>
+            <Link href={`/category/${cat.slug}`} className="hover:text-[var(--bama-primary)]">
+              {cat.name}
+            </Link>
+          </span>
+        ))}
         {news.neighborhood && (
           <>
             <span className="mx-2">/</span>
@@ -57,7 +64,15 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
         </h1>
         <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-500">
           <time>{date}</time>
-          <span>{news.category.name}</span>
+          {news.categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/category/${cat.slug}`}
+              className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs hover:bg-gray-200"
+            >
+              {cat.name}
+            </Link>
+          ))}
           {news.neighborhood && <span>{news.neighborhood.name}</span>}
           <span>بازدید: {news.viewCount + 1}</span>
         </div>
@@ -77,8 +92,9 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
         <p className="text-lg text-gray-700 font-medium mb-6 leading-relaxed">{news.summary}</p>
       )}
       <div
-        className="prose prose-lg max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap"
-        dangerouslySetInnerHTML={{ __html: news.body.replace(/\n/g, '<br />') }}
+        className="prose prose-lg max-w-none text-gray-800 leading-relaxed"
+        dir="rtl"
+        dangerouslySetInnerHTML={{ __html: htmlBody }}
       />
     </article>
   );

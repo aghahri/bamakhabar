@@ -15,7 +15,7 @@ export default async function EditNewsPage({
   const { id } = await params;
   const news = await prisma.news.findUnique({
     where: { id },
-    include: { category: true, neighborhood: true },
+    include: { categories: true, neighborhood: true },
   });
   if (!news) notFound();
 
@@ -28,7 +28,7 @@ export default async function EditNewsPage({
         defaultSummary={news.summary}
         defaultBody={news.body}
         defaultImageUrl={news.imageUrl}
-        defaultCategoryId={news.categoryId}
+        defaultCategoryIds={news.categories.map((c) => c.id)}
         defaultNeighborhoodId={news.neighborhoodId}
         defaultPublished={news.published}
         defaultFeatured={news.featured}

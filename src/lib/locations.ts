@@ -56,7 +56,7 @@ export async function getNeighborhoodBySlug(
       news: {
         where: { published: true },
         orderBy: { createdAt: 'desc' },
-        include: { category: true },
+        include: { categories: true },
       },
     },
   });

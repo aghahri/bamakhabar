@@ -6,7 +6,7 @@ interface NewsCardProps {
   slug: string;
   summary: string | null;
   imageUrl: string | null;
-  categoryName: string;
+  categoryNames: string[];
   createdAt: Date;
   featured?: boolean;
 }
@@ -16,7 +16,7 @@ export function NewsCard({
   slug,
   summary,
   imageUrl,
-  categoryName,
+  categoryNames,
   createdAt,
   featured = false,
 }: NewsCardProps) {
@@ -42,9 +42,13 @@ export function NewsCard({
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-4xl">📰</div>
             )}
-            <span className="absolute top-3 right-3 bg-[var(--bama-primary)] text-white text-xs px-2 py-1 rounded">
-              {categoryName}
-            </span>
+            <div className="absolute top-3 right-3 flex flex-wrap gap-1">
+              {categoryNames.map((name) => (
+                <span key={name} className="bg-[var(--bama-primary)] text-white text-xs px-2 py-1 rounded">
+                  {name}
+                </span>
+              ))}
+            </div>
           </div>
           <div className="p-6 flex flex-col justify-center">
             <time className="text-sm text-gray-500 mb-2">{date}</time>
@@ -74,9 +78,13 @@ export function NewsCard({
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-3xl">📰</div>
         )}
-        <span className="absolute top-2 right-2 bg-[var(--bama-primary)] text-white text-xs px-2 py-0.5 rounded">
-          {categoryName}
-        </span>
+        <div className="absolute top-2 right-2 flex flex-wrap gap-1">
+          {categoryNames.map((name) => (
+            <span key={name} className="bg-[var(--bama-primary)] text-white text-xs px-2 py-0.5 rounded">
+              {name}
+            </span>
+          ))}
+        </div>
       </div>
       <div className="p-4">
         <time className="text-xs text-gray-500">{date}</time>

@@ -17,10 +17,13 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   if (!category) notFound();
 
   const news = await prisma.news.findMany({
-    where: { categoryId: category.id, published: true },
+    where: {
+      categories: { some: { id: category.id } },
+      published: true,
+    },
     orderBy: { createdAt: 'desc' },
     take: 24,
-    include: { category: true },
+    include: { categories: true },
   });
 
   return (
@@ -36,7 +39,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             slug={n.slug}
             summary={n.summary}
             imageUrl={n.imageUrl}
-            categoryName={n.category.name}
+            categoryNames={n.categories.map((c) => c.name)}
             createdAt={n.createdAt}
           />
         ))}

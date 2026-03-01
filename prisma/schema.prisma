@@ -20,7 +20,7 @@ model Category {
   name      String
   slug      String   @unique
   order     Int      @default(0)
-  news      News[]
+  news      News[]   @relation("NewsCategories")
 }
 
 model Neighborhood {
@@ -41,8 +41,7 @@ model News {
   summary        String?
   body          String
   imageUrl      String?
-  categoryId    String
-  category      Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categories    Category[]   @relation("NewsCategories")
   neighborhoodId String?
   neighborhood  Neighborhood? @relation(fields: [neighborhoodId], references: [id], onDelete: SetNull)
   published     Boolean      @default(false)

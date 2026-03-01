@@ -13,7 +13,7 @@ export async function login(username: string, password: string): Promise<boolean
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, admin.id, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.COOKIE_SECURE === 'true',
     sameSite: 'lax',
     maxAge: SESSION_MAX_AGE,
     path: '/',

@@ -6,7 +6,7 @@ export async function SidebarLatestNews() {
     where: { published: true },
     orderBy: { createdAt: 'desc' },
     take: 8,
-    include: { category: true },
+    include: { categories: true },
   });
 
   if (news.length === 0) return null;
@@ -27,7 +27,7 @@ export async function SidebarLatestNews() {
                 {n.title}
               </Link>
               <span className="text-xs text-gray-400 mt-0.5 block">
-                {n.category.name} · {new Date(n.createdAt).toLocaleDateString('fa-IR')}
+                {n.categories.map((c) => c.name).join('، ')} · {new Date(n.createdAt).toLocaleDateString('fa-IR')}
               </span>
             </li>
           ))}

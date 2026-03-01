@@ -55,7 +55,7 @@ export default async function NeighborhoodNewsPage({ params }: Props) {
               slug={n.slug}
               summary={n.summary}
               imageUrl={n.imageUrl}
-              categoryName={n.category.name}
+              categoryNames={n.categories.map((c) => c.name)}
               createdAt={n.createdAt}
             />
           ))}

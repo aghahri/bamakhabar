@@ -9,13 +9,13 @@ export default async function HomePage() {
     prisma.news.findFirst({
       where: { published: true, featured: true },
       orderBy: { createdAt: 'desc' },
-      include: { category: true },
+      include: { categories: true },
     }),
     prisma.news.findMany({
       where: { published: true },
       orderBy: { createdAt: 'desc' },
       take: 11,
-      include: { category: true },
+      include: { categories: true },
     }),
   ]);
 
@@ -30,7 +30,7 @@ export default async function HomePage() {
             slug={featured.slug}
             summary={featured.summary}
             imageUrl={featured.imageUrl}
-            categoryName={featured.category.name}
+            categoryNames={featured.categories.map((c) => c.name)}
             createdAt={featured.createdAt}
             featured
           />
@@ -56,7 +56,7 @@ export default async function HomePage() {
               slug={news.slug}
               summary={news.summary}
               imageUrl={news.imageUrl}
-              categoryName={news.category.name}
+              categoryNames={news.categories.map((c) => c.name)}
               createdAt={news.createdAt}
             />
           ))}

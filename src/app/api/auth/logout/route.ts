@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
-import { logout } from '@/lib/auth';
 
 export async function POST() {
-  await logout();
-  return NextResponse.json({ success: true });
+  const response = NextResponse.json({ success: true });
+  response.cookies.set('bamakhabar_admin', '', {
+    httpOnly: true,
+    path: '/',
+    maxAge: 0,
+  });
+  return response;
 }

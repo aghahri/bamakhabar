@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { RichTextEditor } from './RichTextEditor';
+import { ImageUploader } from './ImageUploader';
 
 interface Category {
   id: string;
@@ -21,7 +23,7 @@ interface NewsFormProps {
   defaultSummary?: string | null;
   defaultBody?: string;
   defaultImageUrl?: string | null;
-  defaultCategoryId?: string;
+  defaultCategoryIds?: string[];
   defaultNeighborhoodId?: string | null;
   defaultPublished?: boolean;
   defaultFeatured?: boolean;
@@ -33,7 +35,7 @@ export function NewsForm({
   defaultSummary = '',
   defaultBody = '',
   defaultImageUrl = '',
-  defaultCategoryId = '',
+  defaultCategoryIds = [],
   defaultNeighborhoodId = '',
   defaultPublished = false,
   defaultFeatured = false,
@@ -45,7 +47,7 @@ export function NewsForm({
   const [summary, setSummary] = useState(defaultSummary ?? '');
   const [body, setBody] = useState(defaultBody);
   const [imageUrl, setImageUrl] = useState(defaultImageUrl ?? '');
-  const [categoryId, setCategoryId] = useState(defaultCategoryId);
+  const [categoryIds, setCategoryIds] = useState<string[]>(defaultCategoryIds);
   const [neighborhoodId, setNeighborhoodId] = useState(defaultNeighborhoodId ?? '');
   const [published, setPublished] = useState(defaultPublished);
   const [featured, setFeatured] = useState(defaultFeatured);
@@ -66,7 +68,7 @@ export function NewsForm({
     setSummary(defaultSummary ?? '');
     setBody(defaultBody);
     setImageUrl(defaultImageUrl ?? '');
-    setCategoryId(defaultCategoryId);
+    setCategoryIds(defaultCategoryIds);
     setNeighborhoodId(defaultNeighborhoodId ?? '');
     setPublished(defaultPublished);
     setFeatured(defaultFeatured);
@@ -75,15 +77,25 @@ export function NewsForm({
     defaultSummary,
     defaultBody,
     defaultImageUrl,
-    defaultCategoryId,
+    defaultCategoryIds,
     defaultNeighborhoodId,
     defaultPublished,
     defaultFeatured,
   ]);
 
+  function toggleCategory(catId: string) {
+    setCategoryIds((prev) =>
+      prev.includes(catId) ? prev.filter((id) => id !== catId) : [...prev, catId]
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    if (categoryIds.length === 0) {
+      setError('حداقل یک دسته‌بندی انتخاب کنید');
+      return;
+    }
     setLoading(true);
     try {
       const payload = {
@@ -91,7 +103,7 @@ export function NewsForm({
         summary: summary || null,
         body,
         imageUrl: imageUrl || null,
-        categoryId,
+        categoryIds,
         neighborhoodId: neighborhoodId || null,
         published,
         featured,
@@ -143,56 +155,45 @@ export function NewsForm({
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">متن خبر *</label>
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          rows={12}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-          required
-        />
+        <RichTextEditor content={body} onChange={setBody} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">آدرس تصویر (اختیاری)</label>
-        <input
-          type="url"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://..."
-          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-        />
+        <label className="block text-sm font-medium text-gray-700 mb-1">تصویر اصلی (اختیاری)</label>
+        <ImageUploader value={imageUrl} onChange={setImageUrl} />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">دسته‌بندی *</label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            required
-          >
-            <option value="">انتخاب کنید</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">دسته‌بندی‌ها *</label>
+        <div className="flex flex-wrap gap-2">
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => toggleCategory(c.id)}
+              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                categoryIds.includes(c.id)
+                  ? 'bg-[var(--bama-primary)] text-white border-[var(--bama-primary)]'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">محله (اختیاری)</label>
-          <select
-            value={neighborhoodId}
-            onChange={(e) => setNeighborhoodId(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2"
-          >
-            <option value="">بدون محله</option>
-            {neighborhoods.map((n) => (
-              <option key={n.id} value={n.id}>
-                {n.name}
-              </option>
-            ))}
-          </select>
-        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">محله (اختیاری)</label>
+        <select
+          value={neighborhoodId}
+          onChange={(e) => setNeighborhoodId(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2"
+        >
+          <option value="">بدون محله</option>
+          {neighborhoods.map((n) => (
+            <option key={n.id} value={n.id}>
+              {n.name}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="flex gap-6">
         <label className="flex items-center gap-2 cursor-pointer">
