@@ -26,8 +26,7 @@ export default function AdminLoginPage() {
         setError(data.error || 'خطا در ورود');
         return;
       }
-      router.push('/admin');
-      router.refresh();
+      window.location.href = '/admin';
     } catch {
       setError('خطای اتصال به سرور');
     } finally {

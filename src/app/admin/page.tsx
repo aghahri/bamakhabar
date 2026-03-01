@@ -21,7 +21,42 @@ export default async function AdminPage() {
       >
         افزودن خبر جدید
       </Link>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Mobile: card layout */}
+      <div className="md:hidden space-y-3">
+        {news.map((n) => (
+          <div key={n.id} className="bg-white rounded-lg shadow p-4">
+            <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{n.title}</h3>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <span className="text-xs text-gray-500">{n.category.name}</span>
+              {n.neighborhood && <span className="text-xs text-gray-500">· {n.neighborhood.name}</span>}
+              <span className="text-xs text-gray-400">· {new Date(n.createdAt).toLocaleDateString('fa-IR')}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span
+                className={`px-2 py-0.5 text-xs rounded ${
+                  n.published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {n.published ? 'منتشر شده' : 'پیش‌نویس'}
+              </span>
+              {n.featured && (
+                <span className="px-2 py-0.5 text-xs rounded bg-amber-100 text-amber-800">شاخص</span>
+              )}
+            </div>
+            <div className="flex gap-4 mt-3 pt-3 border-t border-gray-100 text-sm">
+              <Link href={`/admin/news/${n.id}`} className="text-[var(--bama-primary)] hover:underline">
+                ویرایش
+              </Link>
+              <Link href={`/news/${n.slug}`} target="_blank" className="text-blue-600 hover:underline">
+                مشاهده
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: table layout */}
+      <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -74,10 +109,10 @@ export default async function AdminPage() {
             ))}
           </tbody>
         </table>
-        {news.length === 0 && (
-          <p className="text-center text-gray-500 py-8">خبری ثبت نشده است.</p>
-        )}
       </div>
+      {news.length === 0 && (
+        <p className="text-center text-gray-500 py-8">خبری ثبت نشده است.</p>
+      )}
     </div>
   );
 }

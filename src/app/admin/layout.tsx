@@ -13,15 +13,15 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-gray-100" dir="rtl">
       {session && (
         <header className="bg-[var(--bama-dark)] text-white shadow">
-          <div className="container-custom py-3 flex items-center justify-between">
+          <div className="container-custom py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
             <Link href="/admin" className="font-bold text-lg">
               پنل ادمین باماخبر
             </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/" className="text-sm hover:underline" target="_blank">
+            <div className="flex items-center gap-3 sm:gap-4 text-sm">
+              <Link href="/" className="hover:underline" target="_blank">
                 مشاهده سایت
               </Link>
-              <Link href="/admin/news/new" className="text-sm hover:underline">
+              <Link href="/admin/news/new" className="hover:underline">
                 خبر جدید
               </Link>
               <LogoutButton />
