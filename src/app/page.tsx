@@ -22,7 +22,7 @@ export default async function HomePage() {
   const rest = latest.filter((n) => n.id !== featured?.id).slice(0, 10);
 
   return (
-    <div className="container-custom py-6">
+    <div>
       <section className="mb-8">
         {featured ? (
           <NewsCard

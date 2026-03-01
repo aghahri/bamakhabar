@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Admin {
@@ -24,12 +24,14 @@ model Category {
 }
 
 model Neighborhood {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  province  String?
-  city      String?
-  news      News[]
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  province     String?
+  provinceSlug String?
+  city         String?
+  citySlug     String?
+  news         News[]
 }
 
 model News {

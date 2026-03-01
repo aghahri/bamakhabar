@@ -18,6 +18,14 @@
 
 ## نصب و اجرا
 
+برای اجرای لوکال به یک دیتابیس PostgreSQL نیاز داری (مثلاً [Neon](https://neon.tech) یا [Supabase](https://supabase.com) رایگان). آدرس اتصال را در فایل `.env` بگذار:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
+```
+
+سپس:
+
 ```bash
 cd bamakhabar
 npm install
@@ -47,7 +55,7 @@ npm run dev
 
 ## دیتابیس
 
-پیش‌فرض: SQLite (`prisma/dev.db`). برای production می‌توانید در `prisma/schema.prisma` به PostgreSQL یا MySQL تغییر دهید و `DATABASE_URL` را تنظیم کنید.
+پروژه با **PostgreSQL** کار می‌کند (لوکال و رندر). متغیر `DATABASE_URL` را در `.env` یا در تنظیمات رندر تنظیم کن.
 
 ## دامنه
 
@@ -77,3 +85,14 @@ git push -u origin main
 ```
 
 از این به بعد با `git add .` و `git commit` و `git push` تغییرات را به گیت‌هاب بفرستید.
+
+---
+
+## دیپلوی روی Render
+
+مشخصات کامل و گام‌به‌گام در فایل **[RENDER.md](./RENDER.md)** است. خلاصه:
+
+- **Runtime**: Node (نه Python)
+- **Build Command**: `npm install && npx prisma generate && npx prisma db push && npm run db:seed && npm run build`
+- **Start Command**: `npm start`
+- یک **PostgreSQL** در رندر بساز و آدرس آن را در متغیر **DATABASE_URL** بگذار.

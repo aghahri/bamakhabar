@@ -37,7 +37,7 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
   });
 
   return (
-    <article className="container-custom py-6 max-w-4xl">
+    <article className="max-w-4xl">
       <nav className="text-sm text-gray-500 mb-4">
         <Link href="/" className="hover:text-[var(--bama-primary)]">باماخبر</Link>
         <span className="mx-2">/</span>

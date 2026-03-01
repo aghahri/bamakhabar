@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { SidebarLatestNews } from '@/components/SidebarLatestNews';
 
 export const metadata: Metadata = {
   title: 'باماخبر | اخبار محلات کشور',
@@ -18,7 +19,10 @@ export default function RootLayout({
     <html lang="fa">
       <body className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1">{children}</main>
+        <div className="flex-1 flex gap-6 container-custom py-6">
+          <div className="flex-1 min-w-0">{children}</div>
+          <SidebarLatestNews />
+        </div>
         <Footer />
       </body>
     </html>
