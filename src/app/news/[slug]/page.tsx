@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
+import { NewsImage } from '@/components/NewsImage';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -64,12 +64,11 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
       </header>
       {news.imageUrl && (
         <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-6 bg-gray-200">
-          <Image
+          <NewsImage
             src={news.imageUrl}
             alt={news.title}
             fill
             className="object-cover"
-            priority
             sizes="(max-width: 896px) 100vw, 896px"
           />
         </div>

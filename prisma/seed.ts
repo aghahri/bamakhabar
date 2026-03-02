@@ -82,6 +82,7 @@ async function main() {
       body: 'محله نارمک به عنوان یکی از سرسبزترین و قدیمی‌ترین محله‌های شرق تهران شناخته می‌شود و دارای فضای سبز گسترده است.\n\nنارمک از چندین پارک و بوستان مهم برخوردار است از جمله پارک فدک، بوستان تسلیحات و پارک مدائن. این فضاهای سبز از جمله امکانات تفریحی و رفاهی مهم این منطقه محسوب می‌شوند که به کیفیت زندگی در محله کمک می‌کنند.\n\nدر گذشته، نارمک به دلیل داشتن باغ‌های بزرگ انار و زمین‌های سرسبز معروف بود. نام نارمک از ترکیب «نار» (انار) و «مک» (مکان) گرفته شده است. امروزه محله نارمک به خاطر موقعیت در دامنه‌های جنوبی البرز، دارای آب‌وهوایی نسبتاً خنک‌تر و دلپذیرتر است.',
       categoryId: catMohit!.id,
       neighborhoodId: narmak?.id,
+      imageUrl: 'https://picsum.photos/seed/narmak-park/800/500',
       published: true,
       featured: true,
     },
@@ -92,6 +93,7 @@ async function main() {
       body: 'رئیس کلانتری جوادیه تهران در گفت‌گو با خبرنگاران اعلام کرد که در پی گزارش شهروندان از درگیری و چاقوکشی در یکی از کوچه‌های این محله، ماموران به محل اعزام شدند.\n\nوی افزود: متهم که به دلیل مصرف مواد روان‌گردان دچار توهم شده بود، با سنگ شیشه منزل همسایگان را شکسته و سپس با سلاح سرد به چند نفر حمله کرده بود. پس از مقاومت در برابر پلیس، این فرد دستگیر و به مراجع قضایی تحویل داده شد.',
       categoryId: catEjtemaei!.id,
       neighborhoodId: javadieh?.id,
+      imageUrl: 'https://picsum.photos/seed/javadieh-1/800/500',
       published: true,
       featured: false,
     },
@@ -102,6 +104,7 @@ async function main() {
       body: 'معاون خدمات شهری شهرداری منطقه ۴ تهران از اجرای طرح جمع‌آوری زباله‌های خشک در محله تهرانپارس خبر داد.\n\nدر این طرح شهروندان می‌توانند پسماند خشک خود را در روزهای مشخص به ماموران تحویل دهند. این طرح با هدف کاهش زباله و بازیافت بهتر در محلات شرق تهران اجرا می‌شود.',
       categoryId: catMohit!.id,
       neighborhoodId: tehranpars?.id,
+      imageUrl: 'https://picsum.photos/seed/tehranpars-1/800/500',
       published: true,
       featured: false,
     },
@@ -112,6 +115,7 @@ async function main() {
       body: 'کتابخانه عمومی جلفا در محله تاریخی جلفای اصفهان پس از بازسازی و نوسازی تجهیزات، با حضور مسئولان شهری و فرهنگی و جمعی از اهالی محله بازگشایی شد.\n\nاین کتابخانه با بیش از ۱۰ هزار جلد کتاب در حوزه‌های مختلف و فضای مطالعه برای کودکان و بزرگسالان، یکی از مراکز فرهنگی مهم محله جلفا به شمار می‌رود.',
       categoryId: catFarhangi!.id,
       neighborhoodId: jolfa?.id,
+      imageUrl: 'https://picsum.photos/seed/jolfa-library/800/500',
       published: true,
       featured: false,
     },
@@ -122,6 +126,7 @@ async function main() {
       body: 'جشنواره گل و گیاه به مناسبت آغاز فصل بهار در بوستان محله قصر قاجار شیراز برگزار شد.\n\nدر این جشنواره غرفه‌های فروش گل و گیاهان زینتی و همچنین کارگاه‌های آموزشی برای شهروندان دایر بود. مسئولان شهری از توسعه فضای سبز در محلات شیراز خبر دادند.',
       categoryId: catMohit!.id,
       neighborhoodId: shiraz?.id,
+      imageUrl: 'https://picsum.photos/seed/shiraz-flower/800/500',
       published: true,
       featured: false,
     },
@@ -132,6 +137,7 @@ async function main() {
       body: 'معاون حمل و نقل و ترافیک شهرداری منطقه ۱۲ از نصب دوربین‌های نظارتی در محله پیروزی خبر داد.\n\nبه گفته وی، این دوربین‌ها در معابر اصلی و پرتردد نصب شده‌اند و با هدف افزایش امنیت و نظارت بر ترافیک به بهره‌برداری رسیده‌اند.',
       categoryId: catEjtemaei!.id,
       neighborhoodId: (await prisma.neighborhood.findUnique({ where: { slug: 'pirouzi' } }))?.id,
+      imageUrl: 'https://picsum.photos/seed/pirouzi-1/800/500',
       published: true,
       featured: false,
     },
@@ -140,7 +146,7 @@ async function main() {
   for (const news of sampleNews) {
     await prisma.news.upsert({
       where: { slug: news.slug },
-      update: {},
+      update: { imageUrl: (news as { imageUrl?: string }).imageUrl ?? null },
       create: news,
     });
   }

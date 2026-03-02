@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { NewsImage } from './NewsImage';
 
 interface NewsCardProps {
   title: string;
@@ -32,7 +32,7 @@ export function NewsCard({
         <div className="grid md:grid-cols-2 gap-0">
           <div className="relative h-64 md:h-full min-h-[280px] bg-gray-200">
             {imageUrl ? (
-              <Image
+              <NewsImage
                 src={imageUrl}
                 alt={title}
                 fill
@@ -64,7 +64,7 @@ export function NewsCard({
     <Link href={`/news/${slug}`} className="news-card block group">
       <div className="relative h-48 bg-gray-200">
         {imageUrl ? (
-          <Image
+          <NewsImage
             src={imageUrl}
             alt={title}
             fill
