@@ -100,7 +100,7 @@ export function PricesPanel() {
           <h4 className="text-xs font-semibold text-gray-500 mb-2">ارز دیجیتال</h4>
           <ul className="space-y-1.5 text-sm">
             {data.crypto.map((item) => (
-              <li key={item.id} className="flex justify-between items-center">
+              <li key={item.name} className="flex justify-between items-center">
                 <span className="text-gray-700">{item.name}</span>
                 <span className="font-medium">
                   {formatPrice(item.price)} $
