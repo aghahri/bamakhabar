@@ -12,11 +12,13 @@ async function main() {
   });
 
   const categories = [
-    { name: 'اجتماعی', slug: 'ejtemaei', order: 1 },
-    { name: 'فرهنگی', slug: 'farhangi', order: 2 },
-    { name: 'ورزشی', slug: 'varzeshi', order: 3 },
-    { name: 'اقتصاد', slug: 'eghtesad', order: 4 },
-    { name: 'محیط زیست', slug: 'mohit-zist', order: 5 },
+    { name: 'سیاسی', slug: 'siasi', order: 1 },
+    { name: 'نظامی', slug: 'nezami', order: 2 },
+    { name: 'اجتماعی', slug: 'ejtemaei', order: 3 },
+    { name: 'فرهنگی', slug: 'farhangi', order: 4 },
+    { name: 'ورزشی', slug: 'varzeshi', order: 5 },
+    { name: 'اقتصاد', slug: 'eghtesad', order: 6 },
+    { name: 'محیط زیست', slug: 'mohit-zist', order: 7 },
   ];
   for (const c of categories) {
     await prisma.category.upsert({

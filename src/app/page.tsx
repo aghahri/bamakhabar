@@ -1,42 +1,47 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { NewsCard } from '@/components/NewsCard';
+import { FeaturedSlider } from '@/components/FeaturedSlider';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [featured, latest] = await Promise.all([
-    prisma.news.findFirst({
+  const [featuredList, latest] = await Promise.all([
+    prisma.news.findMany({
       where: { published: true, featured: true },
       orderBy: { createdAt: 'desc' },
+      take: 5,
       include: { categories: true },
     }),
     prisma.news.findMany({
       where: { published: true },
       orderBy: { createdAt: 'desc' },
-      take: 11,
+      take: 16,
       include: { categories: true },
     }),
   ]);
 
-  const rest = latest.filter((n) => n.id !== featured?.id).slice(0, 10);
+  const featuredIds = new Set(featuredList.map((n) => n.id));
+  const rest = latest.filter((n) => !featuredIds.has(n.id)).slice(0, 12);
 
   return (
     <div>
       <section className="mb-8">
-        {featured ? (
-          <NewsCard
-            title={featured.title}
-            slug={featured.slug}
-            summary={featured.summary}
-            imageUrl={featured.imageUrl}
-            categoryNames={featured.categories.map((c) => c.name)}
-            createdAt={featured.createdAt}
-            featured
+        {featuredList.length > 0 ? (
+          <FeaturedSlider
+            items={featuredList.map((n) => ({
+              id: n.id,
+              title: n.title,
+              slug: n.slug,
+              summary: n.summary,
+              imageUrl: n.imageUrl,
+              categoryNames: n.categories.map((c) => c.name),
+              createdAt: n.createdAt,
+            }))}
           />
         ) : (
           <div className="news-card p-12 text-center text-gray-500">
-            <p>خبر شاخصی در حال حاضر وجود ندارد.</p>
+            <p>خبر مهمی برای اسلایدر در حال حاضر انتخاب نشده است.</p>
             <Link href="/admin" className="text-[var(--bama-primary)] mt-2 inline-block">
               ورود به پنل ادمین
             </Link>
@@ -61,7 +66,7 @@ export default async function HomePage() {
             />
           ))}
         </div>
-        {rest.length === 0 && !featured && (
+        {rest.length === 0 && featuredList.length === 0 && (
           <p className="text-center text-gray-500 py-8">خبری منتشر نشده است.</p>
         )}
       </section>

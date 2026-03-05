@@ -44,7 +44,9 @@ export default async function AdminPage() {
                 {n.published ? 'منتشر شده' : 'پیش‌نویس'}
               </span>
               {n.featured && (
-                <span className="px-2 py-0.5 text-xs rounded bg-amber-100 text-amber-800">شاخص</span>
+                <span className="px-2 py-0.5 text-xs rounded bg-amber-100 text-amber-800">
+                  در اسلایدر
+                </span>
               )}
             </div>
             <div className="flex gap-4 mt-3 pt-3 border-t border-gray-100 text-sm">
@@ -95,7 +97,9 @@ export default async function AdminPage() {
                     {n.published ? 'منتشر شده' : 'پیش‌نویس'}
                   </span>
                   {n.featured && (
-                    <span className="mr-1 px-2 py-1 text-xs rounded bg-amber-100 text-amber-800">شاخص</span>
+                    <span className="mr-1 px-2 py-1 text-xs rounded bg-amber-100 text-amber-800">
+                      در اسلایدر
+                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-500">

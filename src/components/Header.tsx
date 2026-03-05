@@ -11,7 +11,12 @@ export async function Header() {
   const links = [
     { href: '/', label: 'صفحه اصلی' },
     { href: '/mahaleh', label: 'اخبار محلات' },
-    ...categories.map((cat) => ({ href: `/category/${cat.slug}`, label: cat.name })),
+    { href: '/category/siasi', label: 'سیاسی' },
+    { href: '/category/nezami', label: 'نظامی' },
+    ...categories
+      .filter((cat) => cat.slug !== 'siasi' && cat.slug !== 'nezami')
+      .map((cat) => ({ href: `/category/${cat.slug}`, label: cat.name })),
+    { href: '/about', label: 'درباره ما' },
   ];
 
   return (

@@ -210,7 +210,7 @@ export function NewsForm({
             checked={featured}
             onChange={(e) => setFeatured(e.target.checked)}
           />
-          <span className="text-sm">خبر شاخص</span>
+          <span className="text-sm">نمایش در اسلایدر صفحه اول (خبر مهم)</span>
         </label>
       </div>
       <div className="flex gap-3 pt-4">
