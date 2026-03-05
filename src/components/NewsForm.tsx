@@ -23,6 +23,7 @@ interface NewsFormProps {
   defaultSummary?: string | null;
   defaultBody?: string;
   defaultImageUrl?: string | null;
+  defaultVideoUrl?: string | null;
   defaultCategoryIds?: string[];
   defaultNeighborhoodId?: string | null;
   defaultPublished?: boolean;
@@ -35,6 +36,7 @@ export function NewsForm({
   defaultSummary = '',
   defaultBody = '',
   defaultImageUrl = '',
+  defaultVideoUrl = '',
   defaultCategoryIds = [],
   defaultNeighborhoodId = '',
   defaultPublished = false,
@@ -47,6 +49,7 @@ export function NewsForm({
   const [summary, setSummary] = useState(defaultSummary ?? '');
   const [body, setBody] = useState(defaultBody);
   const [imageUrl, setImageUrl] = useState(defaultImageUrl ?? '');
+  const [videoUrl, setVideoUrl] = useState(defaultVideoUrl ?? '');
   const [categoryIds, setCategoryIds] = useState<string[]>(defaultCategoryIds);
   const [neighborhoodId, setNeighborhoodId] = useState(defaultNeighborhoodId ?? '');
   const [published, setPublished] = useState(defaultPublished);
@@ -68,6 +71,7 @@ export function NewsForm({
     setSummary(defaultSummary ?? '');
     setBody(defaultBody);
     setImageUrl(defaultImageUrl ?? '');
+    setVideoUrl(defaultVideoUrl ?? '');
     setCategoryIds(defaultCategoryIds);
     setNeighborhoodId(defaultNeighborhoodId ?? '');
     setPublished(defaultPublished);
@@ -77,6 +81,7 @@ export function NewsForm({
     defaultSummary,
     defaultBody,
     defaultImageUrl,
+    defaultVideoUrl,
     defaultCategoryIds,
     defaultNeighborhoodId,
     defaultPublished,
@@ -103,6 +108,7 @@ export function NewsForm({
         summary: summary || null,
         body,
         imageUrl: imageUrl || null,
+        videoUrl: videoUrl || null,
         categoryIds,
         neighborhoodId: neighborhoodId || null,
         published,
@@ -160,6 +166,20 @@ export function NewsForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">تصویر اصلی (اختیاری)</label>
         <ImageUploader value={imageUrl} onChange={setImageUrl} />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">لینک ویدیو (اختیاری)</label>
+        <input
+          type="url"
+          value={videoUrl}
+          onChange={(e) => setVideoUrl(e.target.value)}
+          placeholder="مثلاً لینک mp4 یا آپارات/یوتیوب"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          برای مثال لینک مستقیم فایل mp4 روی هاست خودتان یا لینک ویدیو در پلتفرم‌های ویدیویی. در صورت
+          امکان از فرمت mp4 استفاده کنید.
+        </p>
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">دسته‌بندی‌ها *</label>

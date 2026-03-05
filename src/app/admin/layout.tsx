@@ -24,6 +24,9 @@ export default async function AdminLayout({
               <Link href="/admin/news/new" className="hover:underline">
                 خبر جدید
               </Link>
+              <Link href="/admin/neighborhoods" className="hover:underline">
+                محلات
+              </Link>
               <Link href="/admin/change-password" className="hover:underline">
                 تغییر رمز
               </Link>

@@ -28,6 +28,7 @@ export default async function EditNewsPage({
         defaultSummary={news.summary}
         defaultBody={news.body}
         defaultImageUrl={news.imageUrl}
+        defaultVideoUrl={news.videoUrl}
         defaultCategoryIds={news.categories.map((c) => c.id)}
         defaultNeighborhoodId={news.neighborhoodId}
         defaultPublished={news.published}

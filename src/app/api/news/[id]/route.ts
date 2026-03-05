@@ -32,6 +32,7 @@ export async function PUT(
     summary,
     body: bodyText,
     imageUrl,
+    videoUrl,
     categoryIds,
     neighborhoodId,
     published,
@@ -51,6 +52,7 @@ export async function PUT(
       summary: summary ?? null,
       body: sanitizedBody,
       imageUrl: imageUrl ?? null,
+      videoUrl: videoUrl ?? null,
       categories: {
         set: (categoryIds as string[]).map((cid: string) => ({ id: cid })),
       },

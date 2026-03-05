@@ -41,6 +41,7 @@ model News {
   summary        String?
   body          String
   imageUrl      String?
+  videoUrl      String?
   categories    Category[]   @relation("NewsCategories")
   neighborhoodId String?
   neighborhood  Neighborhood? @relation(fields: [neighborhoodId], references: [id], onDelete: SetNull)

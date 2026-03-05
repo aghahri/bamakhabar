@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
       summary,
       body: bodyText,
       imageUrl,
+      videoUrl,
       categoryIds,
       neighborhoodId,
       published,
@@ -58,6 +59,7 @@ export async function POST(req: NextRequest) {
         summary: summary ?? null,
         body: sanitizedBody,
         imageUrl: imageUrl ?? null,
+        videoUrl: videoUrl ?? null,
         categories: {
           connect: (categoryIds as string[]).map((id: string) => ({ id })),
         },

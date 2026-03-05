@@ -77,7 +77,18 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
           <span>بازدید: {news.viewCount + 1}</span>
         </div>
       </header>
-      {news.imageUrl && (
+      {news.videoUrl && (
+        <div className="w-full aspect-video rounded-lg overflow-hidden mb-6 bg-black">
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+          <video
+            src={news.videoUrl}
+            controls
+            className="w-full h-full"
+            poster={news.imageUrl || undefined}
+          />
+        </div>
+      )}
+      {!news.videoUrl && news.imageUrl && (
         <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-6 bg-gray-200">
           <NewsImage
             src={news.imageUrl}

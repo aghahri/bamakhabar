@@ -124,6 +124,7 @@ async function main() {
       categoryIds: [catMohit!.id],
       neighborhoodId: tehranpars?.id ?? null,
       imageUrl: 'https://picsum.photos/seed/tehranpars-1/800/500',
+      videoUrl: 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4',
       published: true,
       featured: false,
     },
@@ -168,6 +169,7 @@ async function main() {
       where: { slug: news.slug },
       update: {
         imageUrl: news.imageUrl ?? null,
+        videoUrl: (news as { videoUrl?: string }).videoUrl ?? null,
         categories: { set: categoryIds.map((id) => ({ id })) },
       },
       create: {
