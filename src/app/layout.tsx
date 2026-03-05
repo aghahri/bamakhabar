@@ -3,6 +3,7 @@ import './globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SidebarLatestNews } from '@/components/SidebarLatestNews';
+import { PricesPanel } from '@/components/PricesPanel';
 
 export const metadata: Metadata = {
   title: 'باماخبر | اخبار محلات کشور',
@@ -21,7 +22,10 @@ export default function RootLayout({
         <Header />
         <div className="flex-1 flex flex-col lg:flex-row gap-6 container-custom py-4 sm:py-6">
           <div className="flex-1 min-w-0">{children}</div>
-          <SidebarLatestNews />
+          <div className="hidden lg:flex flex-col gap-4 w-72 flex-shrink-0">
+            <SidebarLatestNews />
+            <PricesPanel />
+          </div>
         </div>
         <Footer />
       </body>
