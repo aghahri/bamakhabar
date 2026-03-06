@@ -66,7 +66,9 @@ export function NewsForm({
       .then(setNeighborhoods);
   }, []);
 
+  // فقط در حالت ویرایش (دارای id) state را از props همگام کن تا در فرم «خبر جدید» تایپ کاربر با رندرهای بعدی پاک نشود
   useEffect(() => {
+    if (id == null) return;
     setTitle(defaultTitle);
     setSummary(defaultSummary ?? '');
     setBody(defaultBody);
@@ -77,6 +79,7 @@ export function NewsForm({
     setPublished(defaultPublished);
     setFeatured(defaultFeatured);
   }, [
+    id,
     defaultTitle,
     defaultSummary,
     defaultBody,
