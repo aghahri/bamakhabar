@@ -2,18 +2,46 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { NewsCard } from '@/components/NewsCard';
 
+const SLUG_ALIASES: Record<string, string[]> = {
+  siasi: ['siasi', 'سیاسی'],
+  nezami: ['nezami', 'نظامی'],
+};
+
+async function findCategoryBySlug(slug: string) {
+  const category = await prisma.category.findUnique({ where: { slug } });
+  if (category) return category;
+  const aliases = SLUG_ALIASES[slug];
+  if (aliases) {
+    return prisma.category.findFirst({
+      where: { OR: aliases.map((s) => ({ slug: s })) },
+    });
+  }
+  return null;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const cat = await prisma.category.findUnique({ where: { slug } });
+  const cat = await findCategoryBySlug(slug);
   if (!cat) return { title: 'دسته‌بندی' };
   return { title: `${cat.name} | باماخبر` };
 }
 
 export const revalidate = 60;
 
+export async function generateStaticParams() {
+  try {
+    const categories = await prisma.category.findMany({ select: { slug: true } });
+    return categories.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
+}
+
+export const dynamicParams = true;
+
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const category = await prisma.category.findUnique({ where: { slug } });
+  const category = await findCategoryBySlug(slug);
   if (!category) notFound();
 
   const news = await prisma.news.findMany({
