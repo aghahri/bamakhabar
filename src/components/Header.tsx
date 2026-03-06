@@ -5,17 +5,13 @@ import Link from 'next/link';
 export async function Header() {
   const categories = await prisma.category.findMany({
     orderBy: { order: 'asc' },
-    take: 8,
+    take: 10,
   });
 
   const links = [
     { href: '/', label: 'صفحه اصلی' },
     { href: '/mahaleh', label: 'اخبار محلات' },
-    { href: '/category/siasi', label: 'سیاسی' },
-    { href: '/category/nezami', label: 'نظامی' },
-    ...categories
-      .filter((cat) => cat.slug !== 'siasi' && cat.slug !== 'nezami')
-      .map((cat) => ({ href: `/category/${cat.slug}`, label: cat.name })),
+    ...categories.map((cat) => ({ href: `/category/${cat.slug}`, label: cat.name })),
     { href: '/about', label: 'درباره ما' },
   ];
 

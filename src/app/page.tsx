@@ -5,7 +5,7 @@ import { FeaturedSlider } from '@/components/FeaturedSlider';
 
 export const revalidate = 60;
 
-export default async function HomePage() {
+async function getHomeData() {
   const [featuredList, latest] = await Promise.all([
     prisma.news.findMany({
       where: { published: true, featured: true },
@@ -20,12 +20,34 @@ export default async function HomePage() {
       include: { categories: true },
     }),
   ]);
-
   const featuredIds = new Set(featuredList.map((n) => n.id));
   const rest = latest.filter((n) => !featuredIds.has(n.id)).slice(0, 12);
+  return { featuredList, rest };
+}
+
+export default async function HomePage() {
+  let featuredList: Awaited<ReturnType<typeof getHomeData>>['featuredList'];
+  let rest: Awaited<ReturnType<typeof getHomeData>>['rest'];
+  let dbError = false;
+
+  try {
+    const data = await getHomeData();
+    featuredList = data.featuredList;
+    rest = data.rest;
+  } catch (err) {
+    console.error('HomePage DB error:', err);
+    featuredList = [];
+    rest = [];
+    dbError = true;
+  }
 
   return (
     <div>
+      {dbError && (
+        <div className="news-card p-4 mb-6 text-center text-amber-800 bg-amber-50 border border-amber-200 rounded-lg">
+          <p>در حال حاضر امکان بارگذاری اخبار وجود ندارد. اتصال به پایگاه داده را بررسی کنید.</p>
+        </div>
+      )}
       <section className="mb-8">
         {featuredList.length > 0 ? (
           <FeaturedSlider

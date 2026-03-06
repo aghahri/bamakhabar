@@ -24,6 +24,9 @@ export default async function AdminLayout({
               <Link href="/admin/news/new" className="hover:underline">
                 خبر جدید
               </Link>
+              <Link href="/admin/categories" className="hover:underline">
+                دسته‌بندی‌ها
+              </Link>
               <Link href="/admin/neighborhoods" className="hover:underline">
                 محلات
               </Link>
