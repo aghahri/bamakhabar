@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RichTextEditor } from './RichTextEditor';
 import { ImageUploader } from './ImageUploader';
+import { VideoUploader } from './VideoUploader';
 
 interface Category {
   id: string;
@@ -171,18 +172,8 @@ export function NewsForm({
         <ImageUploader value={imageUrl} onChange={setImageUrl} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">لینک ویدیو (اختیاری)</label>
-        <input
-          type="url"
-          value={videoUrl}
-          onChange={(e) => setVideoUrl(e.target.value)}
-          placeholder="مثلاً لینک mp4 یا آپارات/یوتیوب"
-          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-        />
-        <p className="text-xs text-gray-500 mt-1">
-          برای مثال لینک مستقیم فایل mp4 روی هاست خودتان یا لینک ویدیو در پلتفرم‌های ویدیویی. در صورت
-          امکان از فرمت mp4 استفاده کنید.
-        </p>
+        <label className="block text-sm font-medium text-gray-700 mb-1">ویدیو (اختیاری)</label>
+        <VideoUploader value={videoUrl} onChange={setVideoUrl} />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">دسته‌بندی‌ها *</label>
