@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { toPersianDigits } from '@/lib/persian';
 
 export async function SidebarLatestNews() {
   const news = await prisma.news.findMany({
@@ -27,7 +28,7 @@ export async function SidebarLatestNews() {
                 {n.title}
               </Link>
               <span className="text-xs text-gray-400 mt-0.5 block">
-                {n.categories.map((c) => c.name).join('، ')} · {new Date(n.createdAt).toLocaleDateString('fa-IR')}
+                {n.categories.map((c) => c.name).join('، ')} · {toPersianDigits(new Date(n.createdAt).toLocaleDateString('fa-IR'))}
               </span>
             </li>
           ))}

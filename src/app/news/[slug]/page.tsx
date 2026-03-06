@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { NewsImage } from '@/components/NewsImage';
 import { renderBody } from '@/lib/sanitize';
+import { toPersianDigits } from '@/lib/persian';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -29,13 +30,14 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
     data: { viewCount: { increment: 1 } },
   });
 
-  const date = new Date(news.createdAt).toLocaleDateString('fa-IR', {
+  const dateStr = new Date(news.createdAt).toLocaleDateString('fa-IR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   });
+  const date = toPersianDigits(dateStr);
 
   const htmlBody = renderBody(news.body);
 
@@ -74,7 +76,7 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
             </Link>
           ))}
           {news.neighborhood && <span>{news.neighborhood.name}</span>}
-          <span>بازدید: {news.viewCount + 1}</span>
+          <span>بازدید: {toPersianDigits(news.viewCount + 1)}</span>
         </div>
       </header>
       {news.videoUrl && (

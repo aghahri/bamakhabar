@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { NewsImage } from './NewsImage';
+import { toPersianDigits } from '@/lib/persian';
 
 interface NewsCardProps {
   title: string;
@@ -20,11 +21,12 @@ export function NewsCard({
   createdAt,
   featured = false,
 }: NewsCardProps) {
-  const date = new Date(createdAt).toLocaleDateString('fa-IR', {
+  const dateStr = new Date(createdAt).toLocaleDateString('fa-IR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
+  const date = toPersianDigits(dateStr);
 
   if (featured) {
     return (

@@ -11,6 +11,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         vazir: ['Vazirmatn', 'Tahoma', 'sans-serif'],
+        sans: ['Vazirmatn', 'Tahoma', 'Arial', 'sans-serif'],
       },
     },
   },

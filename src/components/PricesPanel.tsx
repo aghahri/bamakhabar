@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { toPersianDigits, formatPersianNumber } from '@/lib/persian';
 
 function formatPrice(n: number, decimals = 2): string {
-  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
-  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-  if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
-  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  if (n >= 1e9) return toPersianDigits((n / 1e9).toFixed(2)) + 'B';
+  if (n >= 1e6) return toPersianDigits((n / 1e6).toFixed(2)) + 'M';
+  if (n >= 1e3) return toPersianDigits((n / 1e3).toFixed(2)) + 'K';
+  return formatPersianNumber(n, decimals);
 }
 
 function formatNum(n: number): string {
-  return n.toLocaleString('fa-IR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return formatPersianNumber(n, 2);
 }
 
 export function PricesPanel() {
@@ -85,7 +86,7 @@ export function PricesPanel() {
                     <span
                       className={`mr-1 text-xs ${item.change_24h >= 0 ? 'text-green-600' : 'text-red-600'}`}
                     >
-                      ({item.change_24h >= 0 ? '+' : ''}{item.change_24h.toFixed(2)}%)
+                      ({item.change_24h >= 0 ? '+' : ''}{toPersianDigits(item.change_24h.toFixed(2))}%)
                     </span>
                   )}
                 </span>
@@ -107,7 +108,7 @@ export function PricesPanel() {
                   <span
                     className={`mr-1 text-xs ${item.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}
                   >
-                    ({item.change24h >= 0 ? '+' : ''}{item.change24h.toFixed(2)}%)
+                    ({item.change24h >= 0 ? '+' : ''}{toPersianDigits(item.change24h.toFixed(2))}%)
                   </span>
                 </span>
               </li>
