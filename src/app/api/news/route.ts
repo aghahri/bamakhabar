@@ -6,8 +6,10 @@ import { sanitizeHtml } from '@/lib/sanitize';
 function slugify(text: string): string {
   return text
     .trim()
-    .replace(/\s+/g, '-')
+    .replace(/[\s،؟؛]+/g, '-') // فاصله و علائم نگارشی فارسی به خط تیره
     .replace(/[^a-zA-Z0-9\u0600-\u06FF-]/g, '')
+    .replace(/-+/g, '-') // چند خط تیره پشت‌سرهم به یکی
+    .replace(/^-|-$/g, '')
     .toLowerCase();
 }
 

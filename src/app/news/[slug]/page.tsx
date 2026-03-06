@@ -5,9 +5,39 @@ import { NewsImage } from '@/components/NewsImage';
 import { renderBody } from '@/lib/sanitize';
 import { toPersianDigits } from '@/lib/persian';
 
+function normalizeSlug(s: string): string {
+  return s
+    .trim()
+    .replace(/[\s،؟؛]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+async function findNewsBySlug(slug: string) {
+  let decoded = slug;
+  try {
+    decoded = decodeURIComponent(slug);
+  } catch {
+    decoded = slug;
+  }
+  let news = await prisma.news.findUnique({
+    where: { slug: decoded, published: true },
+    include: { categories: true, neighborhood: true },
+  });
+  if (news) return news;
+  const normalized = normalizeSlug(decoded);
+  if (normalized !== decoded) {
+    news = await prisma.news.findFirst({
+      where: { slug: normalized, published: true },
+      include: { categories: true, neighborhood: true },
+    });
+  }
+  return news;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const news = await prisma.news.findUnique({ where: { slug, published: true } });
+  const news = await findNewsBySlug(slug);
   if (!news) return { title: 'خبر' };
   return {
     title: `${news.title} | باماخبر`,
@@ -19,10 +49,7 @@ export const revalidate = 60;
 
 export default async function NewsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const news = await prisma.news.findUnique({
-    where: { slug, published: true },
-    include: { categories: true, neighborhood: true },
-  });
+  const news = await findNewsBySlug(slug);
   if (!news) notFound();
 
   await prisma.news.update({
