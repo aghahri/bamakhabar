@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        vazir: ['Vazirmatn', 'Tahoma', 'sans-serif'],
-        sans: ['Vazirmatn', 'Tahoma', 'Arial', 'sans-serif'],
+        vazir: ['Vazirmatn Variable', 'Vazirmatn', 'Tahoma', 'sans-serif'],
+        sans: ['Vazirmatn Variable', 'Vazirmatn', 'Tahoma', 'Arial', 'sans-serif'],
       },
     },
   },
