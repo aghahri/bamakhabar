@@ -37,7 +37,7 @@ export function VideoUploader({ value, onChange }: VideoUploaderProps) {
       const res = await fetch('/api/upload-video', { method: 'POST', body: formData });
       const text = await res.text();
       if (res.status === 413) {
-        setError('حجم ویدیو زیاد است. حداکثر ۱۰۰ مگابایت مجاز است.');
+        setError('سرور به‌دلیل حجم درخواست آن را رد کرد. روی سرور، در nginx (یا پروکسی دیگر) مقدار client_max_body_size را افزایش دهید (مثلاً 100m).');
         return;
       }
       let data: { url?: string; error?: string };

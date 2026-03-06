@@ -110,7 +110,13 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
         <div className="w-full aspect-video rounded-lg overflow-hidden mb-6 bg-black">
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <video
-            src={news.videoUrl.startsWith('http') ? news.videoUrl : `${process.env.NEXT_PUBLIC_SITE_URL || ''}${news.videoUrl}`}
+            src={
+              news.videoUrl.startsWith('http')
+                ? news.videoUrl
+                : news.videoUrl.startsWith('/uploads/')
+                  ? `/api/media${news.videoUrl}`
+                  : `${process.env.NEXT_PUBLIC_SITE_URL || ''}${news.videoUrl}`
+            }
             controls
             preload="metadata"
             playsInline
