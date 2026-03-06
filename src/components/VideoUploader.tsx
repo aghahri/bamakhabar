@@ -35,17 +35,28 @@ export function VideoUploader({ value, onChange }: VideoUploaderProps) {
       const formData = new FormData();
       formData.append('file', file);
       const res = await fetch('/api/upload-video', { method: 'POST', body: formData });
-      const data = await res.json();
+      const text = await res.text();
+      if (res.status === 413) {
+        setError('حجم ویدیو زیاد است. حداکثر ۱۰۰ مگابایت مجاز است.');
+        return;
+      }
+      let data: { url?: string; error?: string };
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        setError(text || `خطای سرور (${res.status})`);
+        return;
+      }
       if (!res.ok) {
         setError(data.error || 'خطا در آپلود ویدیو');
         return;
       }
-      onChange(data.url);
+      if (data.url) onChange(data.url);
       setMode('upload');
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 4000);
-    } catch {
-      setError('خطای اتصال به سرور');
+    } catch (e) {
+      setError('خطای اتصال به سرور. اینترنت و آدرس سایت را بررسی کنید.');
     } finally {
       setUploading(false);
     }
