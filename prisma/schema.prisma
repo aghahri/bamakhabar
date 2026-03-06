@@ -15,6 +15,26 @@ model Admin {
   createdAt DateTime @default(now())
 }
 
+enum UserRole {
+  ADMIN
+  EDITOR
+  REPORTER
+}
+
+model User {
+  id             String       @id @default(cuid())
+  username       String       @unique
+  password       String
+  name           String?
+  role           UserRole     @default(REPORTER)
+  approved       Boolean      @default(false)
+  neighborhoodId String?
+  neighborhood   Neighborhood? @relation(fields: [neighborhoodId], references: [id], onDelete: SetNull)
+  news           News[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
 model Category {
   id        String   @id @default(cuid())
   name      String
@@ -24,30 +44,36 @@ model Category {
 }
 
 model Neighborhood {
-  id           String   @id @default(cuid())
-  name         String
-  slug         String   @unique
-  province     String?
-  provinceSlug String?
-  city         String?
-  citySlug     String?
-  news         News[]
+  id              String    @id @default(cuid())
+  name            String
+  slug            String    @unique
+  province        String?
+  provinceSlug    String?
+  city            String?
+  citySlug        String?
+  statusColor     String?   // green | yellow | red
+  statusScore     Float?    // -1 to 1
+  statusUpdatedAt DateTime?
+  news            News[]
+  users           User[]
 }
 
 model News {
-  id            String       @id @default(cuid())
-  title         String
-  slug          String       @unique
+  id             String       @id @default(cuid())
+  title          String
+  slug           String       @unique
   summary        String?
-  body          String
-  imageUrl      String?
-  videoUrl      String?
-  categories    Category[]   @relation("NewsCategories")
+  body           String
+  imageUrl       String?
+  videoUrl       String?
+  categories     Category[]   @relation("NewsCategories")
   neighborhoodId String?
-  neighborhood  Neighborhood? @relation(fields: [neighborhoodId], references: [id], onDelete: SetNull)
-  published     Boolean      @default(false)
-  featured      Boolean      @default(false)
-  viewCount     Int          @default(0)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  neighborhood   Neighborhood? @relation(fields: [neighborhoodId], references: [id], onDelete: SetNull)
+  createdById    String?
+  createdBy      User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  published      Boolean      @default(false)
+  featured       Boolean      @default(false)
+  viewCount      Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }

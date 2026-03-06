@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import * as bcrypt from 'bcryptjs';
-
-const COOKIE_NAME = 'bamakhabar_admin';
-const SESSION_MAX_AGE = 60 * 60 * 24; // 24 hours
+import { COOKIE_NAME, getSessionCookieOptions, login } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,23 +8,13 @@ export async function POST(req: NextRequest) {
     if (!username || !password) {
       return NextResponse.json({ error: 'نام کاربری و رمز عبور الزامی است' }, { status: 400 });
     }
-    const admin = await prisma.admin.findUnique({ where: { username } });
-    if (!admin) {
-      return NextResponse.json({ error: 'نام کاربری یا رمز عبور اشتباه است' }, { status: 401 });
+    const result = await login(username, password);
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
-    const ok = await bcrypt.compare(password, admin.password);
-    if (!ok) {
-      return NextResponse.json({ error: 'نام کاربری یا رمز عبور اشتباه است' }, { status: 401 });
-    }
-    const response = NextResponse.json({ success: true });
-    response.cookies.set(COOKIE_NAME, admin.id, {
-      httpOnly: true,
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: 'lax',
-      maxAge: SESSION_MAX_AGE,
-      path: '/',
-    });
-    return response;
+    const res = NextResponse.json({ success: true });
+    res.cookies.set(COOKIE_NAME, result.cookieValue, getSessionCookieOptions());
+    return res;
   } catch {
     return NextResponse.json({ error: 'خطای سرور' }, { status: 500 });
   }
