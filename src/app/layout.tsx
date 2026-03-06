@@ -5,6 +5,9 @@ import { Footer } from '@/components/Footer';
 import { SidebarLatestNews } from '@/components/SidebarLatestNews';
 import { PricesPanel } from '@/components/PricesPanel';
 
+// در بیلد Render به دیتابیس دسترسی نیست؛ رندر فقط در زمان درخواست (runtime)
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'باماخبر | اخبار محلات کشور',
   description: 'پایگاه خبری باماخبر - پوشش اخبار محلات و مناطق کشور',

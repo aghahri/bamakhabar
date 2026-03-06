@@ -28,16 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export const revalidate = 60;
 
-export async function generateStaticParams() {
-  try {
-    const categories = await prisma.category.findMany({ select: { slug: true } });
-    return categories.map((c) => ({ slug: c.slug }));
-  } catch {
-    return [];
-  }
-}
-
-export const dynamicParams = true;
+// در بیلد (مثلاً Render) به DB دسترسی نیست؛ از پیش‌رندر دسته‌ها صرف‌نظر می‌کنیم
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
