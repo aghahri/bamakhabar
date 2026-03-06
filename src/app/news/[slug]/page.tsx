@@ -110,11 +110,15 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
         <div className="w-full aspect-video rounded-lg overflow-hidden mb-6 bg-black">
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <video
-            src={news.videoUrl}
+            src={news.videoUrl.startsWith('http') ? news.videoUrl : `${process.env.NEXT_PUBLIC_SITE_URL || ''}${news.videoUrl}`}
             controls
-            className="w-full h-full"
-            poster={news.imageUrl || undefined}
-          />
+            preload="metadata"
+            playsInline
+            className="w-full h-full object-contain"
+            poster={news.imageUrl ? (news.imageUrl.startsWith('http') ? news.imageUrl : `${process.env.NEXT_PUBLIC_SITE_URL || ''}${news.imageUrl}`) : undefined}
+          >
+            مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+          </video>
         </div>
       )}
       {!news.videoUrl && news.imageUrl && (

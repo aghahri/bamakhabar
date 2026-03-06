@@ -22,13 +22,26 @@ export function isHtmlContent(text: string): boolean {
   return /<[a-z][\s\S]*>/i.test(text);
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
+
+function toAbsoluteMediaUrl(html: string): string {
+  if (!BASE_URL) return html;
+  return html.replace(
+    /\s(src|href)=["'](\/uploads\/[^"']+)["']/g,
+    (_, attr, path) => ` ${attr}="${BASE_URL}${path}"`
+  );
+}
+
 export function renderBody(body: string): string {
+  let out: string;
   if (isHtmlContent(body)) {
-    return sanitizeHtml(body);
+    out = sanitizeHtml(body);
+    out = toAbsoluteMediaUrl(out);
+  } else {
+    out = body
+      .split(/\n\n+/)
+      .map((para) => `<p>${para.replace(/\n/g, '<br />')}</p>`)
+      .join('');
   }
-  // Plain text: convert newlines to <br> and wrap in <p> tags
-  return body
-    .split(/\n\n+/)
-    .map((para) => `<p>${para.replace(/\n/g, '<br />')}</p>`)
-    .join('');
+  return out;
 }
