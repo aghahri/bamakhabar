@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 interface ImageUploaderProps {
   value: string;
@@ -11,22 +11,39 @@ export function ImageUploader({ value, onChange }: ImageUploaderProps) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (localPreview) URL.revokeObjectURL(localPreview);
+    };
+  }, [localPreview]);
 
   const upload = useCallback(async (file: File) => {
     setError('');
     setUploading(true);
+    const objectUrl = URL.createObjectURL(file);
+    setLocalPreview(objectUrl);
     try {
       const formData = new FormData();
       formData.append('file', file);
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const data = await res.json();
+      if (localPreview) {
+        URL.revokeObjectURL(localPreview);
+        setLocalPreview(null);
+      }
       if (!res.ok) {
         setError(data.error || 'خطا در آپلود');
         return;
       }
       onChange(data.url);
     } catch {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+        setLocalPreview(null);
+      }
       setError('خطای اتصال به سرور');
     } finally {
       setUploading(false);
@@ -46,25 +63,37 @@ export function ImageUploader({ value, onChange }: ImageUploaderProps) {
     if (inputRef.current) inputRef.current.value = '';
   }, [upload]);
 
-  if (value) {
+  const previewSrc = localPreview || value;
+  if (previewSrc) {
     return (
       <div className="space-y-2">
-        <div className="relative w-full max-w-md rounded-lg overflow-hidden border border-gray-200">
+        <div className="relative w-full max-w-md rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="پیش‌نمایش" className="w-full h-48 object-cover" />
+          <img
+            src={previewSrc}
+            alt="پیش‌نمایش"
+            className="w-full h-48 object-cover"
+          />
+          {uploading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 text-white text-sm">
+              در حال آپلود...
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-sm text-blue-600 hover:underline"
+            disabled={uploading}
+            className="text-sm text-blue-600 hover:underline disabled:opacity-50"
           >
             تغییر تصویر
           </button>
           <button
             type="button"
-            onClick={() => onChange('')}
-            className="text-sm text-red-600 hover:underline"
+            onClick={() => { setLocalPreview(null); onChange(''); }}
+            disabled={uploading}
+            className="text-sm text-red-600 hover:underline disabled:opacity-50"
           >
             حذف تصویر
           </button>
