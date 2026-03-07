@@ -77,29 +77,32 @@ export default async function HomePage() {
         )}
       </section>
 
-      <NeighborhoodRanking ranking={ranking} />
-
-      <section>
-        <h2 className="text-lg font-bold text-gray-800 border-r-4 border-[var(--bama-primary)] pr-3 mb-4">
-          آخرین اخبار
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {rest.map((news) => (
-            <NewsCard
-              key={news.id}
-              title={news.title}
-              slug={news.slug}
-              summary={news.summary}
-              imageUrl={news.imageUrl}
-              categoryNames={news.categories.map((c) => c.name)}
-              createdAt={news.createdAt}
-            />
-          ))}
-        </div>
-        {rest.length === 0 && featuredList.length === 0 && (
-          <p className="text-center text-gray-500 py-8">خبری منتشر نشده است.</p>
-        )}
-      </section>
+      <div className="flex flex-col lg:flex-row gap-6">
+        <aside className="w-full lg:w-80 flex-shrink-0 lg:order-1 order-2">
+          <NeighborhoodRanking ranking={ranking} sidebar />
+        </aside>
+        <section className="flex-1 min-w-0 lg:order-2 order-1">
+          <h2 className="text-lg font-bold text-gray-800 border-r-4 border-[var(--bama-primary)] pr-3 mb-4">
+            آخرین اخبار
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            {rest.map((news) => (
+              <NewsCard
+                key={news.id}
+                title={news.title}
+                slug={news.slug}
+                summary={news.summary}
+                imageUrl={news.imageUrl}
+                categoryNames={news.categories.map((c) => c.name)}
+                createdAt={news.createdAt}
+              />
+            ))}
+          </div>
+          {rest.length === 0 && featuredList.length === 0 && (
+            <p className="text-center text-gray-500 py-8">خبری منتشر نشده است.</p>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
