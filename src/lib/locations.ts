@@ -92,6 +92,8 @@ export type NeighborhoodRankItem = {
   slug: string;
   provinceSlug: string | null;
   citySlug: string | null;
+  cityName: string | null;
+  provinceName: string | null;
   statusColor: string | null;
   statusScore: number | null;
 };
@@ -116,50 +118,40 @@ export async function getNeighborhoodRanking(): Promise<NeighborhoodRanking> {
       slug: true,
       provinceSlug: true,
       citySlug: true,
+      province: true,
+      city: true,
       statusColor: true,
       statusScore: true,
     },
     orderBy: { statusScore: 'asc' },
   });
 
+  const toItem = (n: (typeof list)[0]) => ({
+    id: n.id,
+    name: n.name,
+    slug: n.slug,
+    provinceSlug: n.provinceSlug,
+    citySlug: n.citySlug,
+    cityName: n.city ?? null,
+    provinceName: n.province ?? null,
+    statusColor: n.statusColor,
+    statusScore: n.statusScore,
+  });
+
   const red = list
     .filter((n) => n.statusColor === 'red')
     .slice(0, 5)
-    .map((n) => ({
-      id: n.id,
-      name: n.name,
-      slug: n.slug,
-      provinceSlug: n.provinceSlug,
-      citySlug: n.citySlug,
-      statusColor: n.statusColor,
-      statusScore: n.statusScore,
-    }));
+    .map(toItem);
 
   const yellow = list
     .filter((n) => n.statusColor === 'yellow')
     .slice(0, 5)
-    .map((n) => ({
-      id: n.id,
-      name: n.name,
-      slug: n.slug,
-      provinceSlug: n.provinceSlug,
-      citySlug: n.citySlug,
-      statusColor: n.statusColor,
-      statusScore: n.statusScore,
-    }));
+    .map(toItem);
 
   const green = list
     .filter((n) => n.statusColor === 'green')
     .slice(0, 5)
-    .map((n) => ({
-      id: n.id,
-      name: n.name,
-      slug: n.slug,
-      provinceSlug: n.provinceSlug,
-      citySlug: n.citySlug,
-      statusColor: n.statusColor,
-      statusScore: n.statusScore,
-    }));
+    .map(toItem);
 
   return { red, yellow, green };
 }

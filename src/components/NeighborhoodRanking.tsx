@@ -27,20 +27,23 @@ function Block({
         <p className={`opacity-80 ${compact ? 'text-xs' : 'text-sm'}`}>{emptyMessage}</p>
       ) : (
         <ol className={`list-decimal list-inside space-y-1 ${compact ? 'text-sm' : 'space-y-1.5'}`}>
-          {items.map((n) => (
-            <li key={n.id}>
-              {n.provinceSlug && n.citySlug ? (
-                <Link
-                  href={`/mahaleh/${n.provinceSlug}/${n.citySlug}/${n.slug}`}
-                  className="hover:underline font-medium"
-                >
-                  {n.name}
-                </Link>
-              ) : (
-                <span className="font-medium">{n.name}</span>
-              )}
-            </li>
-          ))}
+          {items.map((n) => {
+            const label = n.cityName ? `${n.name} (${n.cityName})` : n.name;
+            return (
+              <li key={n.id}>
+                {n.provinceSlug && n.citySlug ? (
+                  <Link
+                    href={`/mahaleh/${n.provinceSlug}/${n.citySlug}/${n.slug}`}
+                    className="hover:underline font-medium"
+                  >
+                    {label}
+                  </Link>
+                ) : (
+                  <span className="font-medium">{label}</span>
+                )}
+              </li>
+            );
+          })}
         </ol>
       )}
     </div>
