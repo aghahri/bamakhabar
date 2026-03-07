@@ -29,8 +29,9 @@ export async function PUT(
   const { id } = await params;
   const existing = await prisma.news.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: 'خبر یافت نشد' }, { status: 404 });
+  const reporterNeighborhoodId = session.type === 'user' ? session.neighborhoodId : null;
   const isReporter = session.type === 'user' && session.role === 'REPORTER';
-  if (isReporter && existing.neighborhoodId !== session.neighborhoodId) {
+  if (isReporter && existing.neighborhoodId !== reporterNeighborhoodId) {
     return NextResponse.json({ error: 'فقط اخبار محله خود را می‌توانید ویرایش کنید' }, { status: 403 });
   }
   const body = await req.json();
@@ -52,7 +53,7 @@ export async function PUT(
     );
   }
   if (isReporter) {
-    neighborhoodId = session.neighborhoodId || null;
+    neighborhoodId = reporterNeighborhoodId ?? null;
     featured = false;
   }
   const sanitizedBody = sanitizeHtml(bodyText);

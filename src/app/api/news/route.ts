@@ -56,9 +56,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    const reporterNeighborhoodId = session.type === 'user' ? session.neighborhoodId : null;
     const isReporter = session.type === 'user' && session.role === 'REPORTER';
     if (isReporter) {
-      neighborhoodId = session.neighborhoodId || null;
+      neighborhoodId = reporterNeighborhoodId ?? null;
       featured = false;
     }
     let slug = slugify(title);
