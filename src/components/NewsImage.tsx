@@ -11,13 +11,21 @@ interface NewsImageProps {
   sizes?: string;
 }
 
-/** مسیرهای آپلودشده (مثلاً /uploads/...) با تگ img معمولی تا بدون خطا نمایش داده شوند */
+/** مسیرهای آپلودشده را از طریق API مدیا سرو می‌کنیم تا روی همه هاست‌ها درست کار کند */
+function getImageSrc(src: string): string {
+  if (!src) return src;
+  if (src.startsWith('/uploads/')) return `/api/media${src}`;
+  if (src.startsWith('/api/media/')) return src;
+  return src;
+}
+
 function isLocalUpload(src: string) {
   return src.startsWith('/uploads/') || src.startsWith('/api/media/');
 }
 
 export function NewsImage({ src, alt, fill, className, sizes }: NewsImageProps) {
   const [error, setError] = useState(false);
+  const imageSrc = getImageSrc(src);
 
   if (error) {
     return (
@@ -33,12 +41,13 @@ export function NewsImage({ src, alt, fill, className, sizes }: NewsImageProps) 
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={src}
+        src={imageSrc}
         alt={alt}
         className={fill ? `absolute inset-0 w-full h-full ${className ?? ''}` : className}
         style={fill ? { objectFit: 'cover' } : undefined}
         sizes={sizes}
         onError={() => setError(true)}
+        loading="lazy"
       />
     );
   }

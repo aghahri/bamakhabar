@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProvinces, getCitiesByProvince, getNeighborhoodBySlug } from '@/lib/locations';
+import { getProvinceBySlug, getCityBySlug, getNeighborhoodBySlug } from '@/lib/locations';
 import { NewsCard } from '@/components/NewsCard';
 
 type Props = { params: Promise<{ provinceSlug: string; citySlug: string; neighborhoodSlug: string }> };
@@ -19,14 +19,14 @@ export const revalidate = 60;
 
 export default async function NeighborhoodNewsPage({ params }: Props) {
   const { provinceSlug, citySlug, neighborhoodSlug } = await params;
-  const [provinces, cities, neighborhood] = await Promise.all([
-    getProvinces(),
-    getCitiesByProvince(provinceSlug),
+  const [province, city, neighborhood] = await Promise.all([
+    getProvinceBySlug(provinceSlug),
+    getCityBySlug(provinceSlug, citySlug),
     getNeighborhoodBySlug(provinceSlug, citySlug, neighborhoodSlug),
   ]);
-  const province = provinces.find((p) => p.slug === provinceSlug);
-  const city = cities.find((c) => c.slug === citySlug);
   if (!province || !city || !neighborhood) notFound();
+  const canonicalProvinceSlug = province.slug;
+  const canonicalCitySlug = city.slug;
 
   return (
     <div>
@@ -35,9 +35,9 @@ export default async function NeighborhoodNewsPage({ params }: Props) {
         <span className="mx-2">/</span>
         <Link href="/mahaleh" className="hover:text-[var(--bama-primary)]">محلات</Link>
         <span className="mx-2">/</span>
-        <Link href={`/mahaleh/${provinceSlug}`} className="hover:text-[var(--bama-primary)]">{province.name}</Link>
+        <Link href={`/mahaleh/${canonicalProvinceSlug}`} className="hover:text-[var(--bama-primary)]">{province.name}</Link>
         <span className="mx-2">/</span>
-        <Link href={`/mahaleh/${provinceSlug}/${citySlug}`} className="hover:text-[var(--bama-primary)]">{city.name}</Link>
+        <Link href={`/mahaleh/${canonicalProvinceSlug}/${canonicalCitySlug}`} className="hover:text-[var(--bama-primary)]">{city.name}</Link>
         <span className="mx-2">/</span>
         <span>{neighborhood.name}</span>
       </nav>

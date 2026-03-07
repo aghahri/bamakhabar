@@ -63,7 +63,7 @@ export function ImageUploader({ value, onChange }: ImageUploaderProps) {
     if (inputRef.current) inputRef.current.value = '';
   }, [upload]);
 
-  const previewSrc = localPreview || value;
+  const previewSrc = localPreview || (value?.startsWith('/uploads/') ? `/api/media${value}` : value);
   if (previewSrc) {
     return (
       <div className="space-y-2">

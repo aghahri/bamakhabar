@@ -51,13 +51,16 @@ export async function GET(
         },
       });
     }
-    return new NextResponse(buffer, {
-      headers: {
-        'Content-Type': contentType,
-        'Content-Length': String(size),
-        'Accept-Ranges': 'bytes',
-      },
-    });
+    const isImage = ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    const headers: Record<string, string> = {
+      'Content-Type': contentType,
+      'Content-Length': String(size),
+      'Accept-Ranges': 'bytes',
+    };
+    if (isImage) {
+      headers['Cache-Control'] = 'public, max-age=86400'; // 1 day
+    }
+    return new NextResponse(buffer, { headers });
   } catch {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }

@@ -1,15 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProvinces, getCitiesByProvince, getNeighborhoodsByCity } from '@/lib/locations';
+import { getProvinceBySlug, getCityBySlug, getNeighborhoodsByCity } from '@/lib/locations';
 
 type Props = { params: Promise<{ provinceSlug: string; citySlug: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { provinceSlug, citySlug } = await params;
-  const provinces = await getProvinces();
-  const cities = await getCitiesByProvince(provinceSlug);
-  const province = provinces.find((p) => p.slug === provinceSlug);
-  const city = cities.find((c) => c.slug === citySlug);
+  const province = await getProvinceBySlug(provinceSlug);
+  const city = await getCityBySlug(provinceSlug, citySlug);
   if (!province || !city) return { title: 'محلات' };
   return { title: `${city.name}، ${province.name} | اخبار محلات | باماخبر` };
 }
@@ -18,14 +16,14 @@ export const revalidate = 60;
 
 export default async function CityPage({ params }: Props) {
   const { provinceSlug, citySlug } = await params;
-  const [provinces, cities, neighborhoods] = await Promise.all([
-    getProvinces(),
-    getCitiesByProvince(provinceSlug),
-    getNeighborhoodsByCity(provinceSlug, citySlug),
+  const [province, city] = await Promise.all([
+    getProvinceBySlug(provinceSlug),
+    getCityBySlug(provinceSlug, citySlug),
   ]);
-  const province = provinces.find((p) => p.slug === provinceSlug);
-  const city = cities.find((c) => c.slug === citySlug);
   if (!province || !city) notFound();
+  const canonicalProvinceSlug = province.slug;
+  const canonicalCitySlug = city.slug;
+  const neighborhoods = await getNeighborhoodsByCity(canonicalProvinceSlug, canonicalCitySlug);
 
   return (
     <div>
@@ -34,7 +32,7 @@ export default async function CityPage({ params }: Props) {
         <span className="mx-2">/</span>
         <Link href="/mahaleh" className="hover:text-[var(--bama-primary)]">محلات</Link>
         <span className="mx-2">/</span>
-        <Link href={`/mahaleh/${provinceSlug}`} className="hover:text-[var(--bama-primary)]">{province.name}</Link>
+        <Link href={`/mahaleh/${canonicalProvinceSlug}`} className="hover:text-[var(--bama-primary)]">{province.name}</Link>
         <span className="mx-2">/</span>
         <span>{city.name}</span>
       </nav>
@@ -46,7 +44,7 @@ export default async function CityPage({ params }: Props) {
         {neighborhoods.map((n) => (
           <li key={n.id}>
             <Link
-              href={`/mahaleh/${provinceSlug}/${citySlug}/${n.slug}`}
+              href={`/mahaleh/${canonicalProvinceSlug}/${canonicalCitySlug}/${n.slug}`}
               className="block p-4 bg-white rounded-lg border border-gray-100 hover:border-[var(--bama-primary)] hover:shadow-md transition-all"
             >
               <div className="flex items-center gap-2">
