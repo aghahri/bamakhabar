@@ -41,9 +41,24 @@ export default async function NeighborhoodNewsPage({ params }: Props) {
         <span className="mx-2">/</span>
         <span>{neighborhood.name}</span>
       </nav>
-      <h1 className="text-2xl font-bold text-gray-900 border-r-4 border-[var(--bama-primary)] pr-3 mb-6">
-        اخبار محله {neighborhood.name}
-      </h1>
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 border-r-4 border-[var(--bama-primary)] pr-3">
+          اخبار محله {neighborhood.name}
+        </h1>
+        {neighborhood.statusColor && (
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${
+              neighborhood.statusColor === 'green'
+                ? 'bg-green-100 text-green-800'
+                : neighborhood.statusColor === 'red'
+                  ? 'bg-red-100 text-red-800'
+                  : 'bg-amber-100 text-amber-800'
+            }`}
+          >
+            {neighborhood.statusColor === 'green' ? 'وضعیت مطلوب' : neighborhood.statusColor === 'red' ? 'نیاز به توجه' : 'وضعیت متوسط'}
+          </span>
+        )}
+      </div>
       {neighborhood.news.length === 0 ? (
         <p className="text-gray-500 py-8">هنوز خبری برای این محله منتشر نشده است.</p>
       ) : (

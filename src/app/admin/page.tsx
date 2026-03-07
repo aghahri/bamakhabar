@@ -7,7 +7,12 @@ export default async function AdminPage() {
   const session = await getSession();
   if (!session) redirect('/admin/login');
 
+  const where =
+    session.type === 'user' && session.role === 'REPORTER' && session.neighborhoodId
+      ? { neighborhoodId: session.neighborhoodId }
+      : {};
   const news = await prisma.news.findMany({
+    where,
     orderBy: { createdAt: 'desc' },
     include: { categories: true, neighborhood: true },
   });

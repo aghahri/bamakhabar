@@ -2,7 +2,7 @@ import { prisma } from './prisma';
 
 export type ProvinceItem = { name: string; slug: string };
 export type CityItem = { name: string; slug: string };
-export type NeighborhoodItem = { id: string; name: string; slug: string; newsCount: number };
+export type NeighborhoodItem = { id: string; name: string; slug: string; newsCount: number; statusColor: string | null };
 
 export async function getProvinces(): Promise<ProvinceItem[]> {
   const rows = await prisma.neighborhood.findMany({
@@ -42,6 +42,7 @@ export async function getNeighborhoodsByCity(
     name: n.name,
     slug: n.slug,
     newsCount: n._count.news,
+    statusColor: n.statusColor,
   }));
 }
 

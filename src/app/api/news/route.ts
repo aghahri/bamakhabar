@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession, requireAdmin } from '@/lib/auth';
+import { getSession, requireAdmin, requireEditorOrAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { sanitizeHtml } from '@/lib/sanitize';
 
@@ -18,7 +18,12 @@ export async function GET() {
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const where =
+    session.type === 'user' && session.role === 'REPORTER' && session.neighborhoodId
+      ? { neighborhoodId: session.neighborhoodId }
+      : {};
   const list = await prisma.news.findMany({
+    where,
     orderBy: { createdAt: 'desc' },
     include: { categories: true, neighborhood: true },
   });
@@ -26,14 +31,15 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  let session;
   try {
-    await requireAdmin();
+    session = await requireEditorOrAdmin();
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   try {
     const body = await req.json();
-    const {
+    let {
       title,
       summary,
       body: bodyText,
@@ -49,6 +55,11 @@ export async function POST(req: NextRequest) {
         { error: 'عنوان، متن و حداقل یک دسته‌بندی الزامی است' },
         { status: 400 }
       );
+    }
+    const isReporter = session.type === 'user' && session.role === 'REPORTER';
+    if (isReporter) {
+      neighborhoodId = session.neighborhoodId || null;
+      featured = false;
     }
     let slug = slugify(title);
     const existing = await prisma.news.findUnique({ where: { slug } });
@@ -66,6 +77,7 @@ export async function POST(req: NextRequest) {
           connect: (categoryIds as string[]).map((id: string) => ({ id })),
         },
         neighborhoodId: neighborhoodId || null,
+        createdById: session.type === 'user' ? session.id : null,
         published: Boolean(published),
         featured: Boolean(featured),
       },

@@ -18,6 +18,8 @@ export default async function EditNewsPage({
     include: { categories: true, neighborhood: true },
   });
   if (!news) notFound();
+  const isReporter = session.type === 'user' && session.role === 'REPORTER';
+  if (isReporter && news.neighborhoodId !== session.neighborhoodId) notFound();
 
   return (
     <div>
@@ -33,6 +35,8 @@ export default async function EditNewsPage({
         defaultNeighborhoodId={news.neighborhoodId}
         defaultPublished={news.published}
         defaultFeatured={news.featured}
+        isReporter={isReporter}
+        reporterNeighborhoodId={session.type === 'user' ? session.neighborhoodId : null}
       />
     </div>
   );

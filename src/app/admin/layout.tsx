@@ -30,6 +30,11 @@ export default async function AdminLayout({
               <Link href="/admin/neighborhoods" className="hover:underline">
                 محلات
               </Link>
+              {(session.type === 'admin' || (session.type === 'user' && session.role === 'ADMIN')) && (
+                <Link href="/admin/users" className="hover:underline">
+                  کاربران
+                </Link>
+              )}
               <Link href="/admin/change-password" className="hover:underline">
                 تغییر رمز
               </Link>

@@ -49,7 +49,17 @@ export default async function CityPage({ params }: Props) {
               href={`/mahaleh/${provinceSlug}/${citySlug}/${n.slug}`}
               className="block p-4 bg-white rounded-lg border border-gray-100 hover:border-[var(--bama-primary)] hover:shadow-md transition-all"
             >
-              <span className="font-medium text-gray-900">{n.name}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-gray-900">{n.name}</span>
+                {n.statusColor && (
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                      n.statusColor === 'green' ? 'bg-green-500' : n.statusColor === 'red' ? 'bg-red-500' : 'bg-amber-500'
+                    }`}
+                    title={n.statusColor === 'green' ? 'وضعیت مطلوب' : n.statusColor === 'red' ? 'نیاز به توجه' : 'متوسط'}
+                  />
+                )}
+              </div>
               {n.newsCount > 0 && (
                 <span className="block text-sm text-gray-500 mt-1">{n.newsCount} خبر</span>
               )}

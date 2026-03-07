@@ -29,6 +29,8 @@ interface NewsFormProps {
   defaultNeighborhoodId?: string | null;
   defaultPublished?: boolean;
   defaultFeatured?: boolean;
+  isReporter?: boolean;
+  reporterNeighborhoodId?: string | null;
 }
 
 export function NewsForm({
@@ -42,6 +44,8 @@ export function NewsForm({
   defaultNeighborhoodId = '',
   defaultPublished = false,
   defaultFeatured = false,
+  isReporter = false,
+  reporterNeighborhoodId = null,
 }: NewsFormProps) {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -52,9 +56,10 @@ export function NewsForm({
   const [imageUrl, setImageUrl] = useState(defaultImageUrl ?? '');
   const [videoUrl, setVideoUrl] = useState(defaultVideoUrl ?? '');
   const [categoryIds, setCategoryIds] = useState<string[]>(defaultCategoryIds);
-  const [neighborhoodId, setNeighborhoodId] = useState(defaultNeighborhoodId ?? '');
+  const effectiveNeighborhoodId = isReporter && reporterNeighborhoodId ? reporterNeighborhoodId : (defaultNeighborhoodId ?? '');
+  const [neighborhoodId, setNeighborhoodId] = useState(effectiveNeighborhoodId);
   const [published, setPublished] = useState(defaultPublished);
-  const [featured, setFeatured] = useState(defaultFeatured);
+  const [featured, setFeatured] = useState(isReporter ? false : defaultFeatured);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -62,10 +67,20 @@ export function NewsForm({
     fetch('/api/categories')
       .then((r) => r.json())
       .then(setCategories);
-    fetch('/api/neighborhoods')
-      .then((r) => r.json())
-      .then(setNeighborhoods);
-  }, []);
+    if (isReporter && reporterNeighborhoodId) {
+      fetch('/api/neighborhoods')
+        .then((r) => r.json())
+        .then((list: Neighborhood[]) => {
+          const one = list.find((n) => n.id === reporterNeighborhoodId);
+          setNeighborhoods(one ? [one] : []);
+        });
+      setNeighborhoodId(reporterNeighborhoodId);
+    } else {
+      fetch('/api/neighborhoods')
+        .then((r) => r.json())
+        .then(setNeighborhoods);
+    }
+  }, [isReporter, reporterNeighborhoodId]);
 
   // فقط در حالت ویرایش (دارای id) state را از props همگام کن تا در فرم «خبر جدید» تایپ کاربر با رندرهای بعدی پاک نشود
   useEffect(() => {
@@ -76,9 +91,9 @@ export function NewsForm({
     setImageUrl(defaultImageUrl ?? '');
     setVideoUrl(defaultVideoUrl ?? '');
     setCategoryIds(defaultCategoryIds);
-    setNeighborhoodId(defaultNeighborhoodId ?? '');
+    setNeighborhoodId(isReporter && reporterNeighborhoodId ? reporterNeighborhoodId : (defaultNeighborhoodId ?? ''));
     setPublished(defaultPublished);
-    setFeatured(defaultFeatured);
+    setFeatured(isReporter ? false : defaultFeatured);
   }, [
     id,
     defaultTitle,
@@ -90,6 +105,8 @@ export function NewsForm({
     defaultNeighborhoodId,
     defaultPublished,
     defaultFeatured,
+    isReporter,
+    reporterNeighborhoodId,
   ]);
 
   function toggleCategory(catId: string) {
@@ -194,21 +211,29 @@ export function NewsForm({
           ))}
         </div>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">محله (اختیاری)</label>
-        <select
-          value={neighborhoodId}
-          onChange={(e) => setNeighborhoodId(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-        >
-          <option value="">بدون محله</option>
-          {neighborhoods.map((n) => (
-            <option key={n.id} value={n.id}>
-              {n.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {!isReporter && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">محله (اختیاری)</label>
+          <select
+            value={neighborhoodId}
+            onChange={(e) => setNeighborhoodId(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+          >
+            <option value="">بدون محله</option>
+            {neighborhoods.map((n) => (
+              <option key={n.id} value={n.id}>
+                {n.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      {isReporter && neighborhoods.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">محله</label>
+          <p className="text-gray-600 py-1">{neighborhoods[0].name}</p>
+        </div>
+      )}
       <div className="flex gap-6">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -218,14 +243,16 @@ export function NewsForm({
           />
           <span className="text-sm">منتشر شود</span>
         </label>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={featured}
-            onChange={(e) => setFeatured(e.target.checked)}
-          />
-          <span className="text-sm">نمایش در اسلایدر صفحه اول (خبر مهم)</span>
-        </label>
+        {!isReporter && (
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={featured}
+              onChange={(e) => setFeatured(e.target.checked)}
+            />
+            <span className="text-sm">نمایش در اسلایدر صفحه اول (خبر مهم)</span>
+          </label>
+        )}
       </div>
       <div className="flex gap-3 pt-4">
         <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">
