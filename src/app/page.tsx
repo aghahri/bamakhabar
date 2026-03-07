@@ -2,11 +2,13 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { NewsCard } from '@/components/NewsCard';
 import { FeaturedSlider } from '@/components/FeaturedSlider';
+import { NeighborhoodRanking } from '@/components/NeighborhoodRanking';
+import { getNeighborhoodRanking } from '@/lib/locations';
 
 export const revalidate = 60;
 
 async function getHomeData() {
-  const [featuredList, latest] = await Promise.all([
+  const [featuredList, latest, ranking] = await Promise.all([
     prisma.news.findMany({
       where: { published: true, featured: true },
       orderBy: { createdAt: 'desc' },
@@ -19,25 +21,29 @@ async function getHomeData() {
       take: 16,
       include: { categories: true },
     }),
+    getNeighborhoodRanking(),
   ]);
   const featuredIds = new Set(featuredList.map((n) => n.id));
   const rest = latest.filter((n) => !featuredIds.has(n.id)).slice(0, 12);
-  return { featuredList, rest };
+  return { featuredList, rest, ranking };
 }
 
 export default async function HomePage() {
   let featuredList: Awaited<ReturnType<typeof getHomeData>>['featuredList'];
   let rest: Awaited<ReturnType<typeof getHomeData>>['rest'];
+  let ranking: Awaited<ReturnType<typeof getHomeData>>['ranking'];
   let dbError = false;
 
   try {
     const data = await getHomeData();
     featuredList = data.featuredList;
     rest = data.rest;
+    ranking = data.ranking;
   } catch (err) {
     console.error('HomePage DB error:', err);
     featuredList = [];
     rest = [];
+    ranking = { red: [], yellow: [], green: [] };
     dbError = true;
   }
 
@@ -70,6 +76,8 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      <NeighborhoodRanking ranking={ranking} />
 
       <section>
         <h2 className="text-lg font-bold text-gray-800 border-r-4 border-[var(--bama-primary)] pr-3 mb-4">

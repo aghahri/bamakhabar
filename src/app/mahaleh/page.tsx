@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { getProvinces } from '@/lib/locations';
+import { getProvinces, getNeighborhoodRanking } from '@/lib/locations';
+import { NeighborhoodRanking } from '@/components/NeighborhoodRanking';
 
 export const metadata = {
   title: 'اخبار بر اساس استان | باماخبر',
@@ -9,7 +10,7 @@ export const metadata = {
 export const revalidate = 60;
 
 export default async function MahalehPage() {
-  const provinces = await getProvinces();
+  const [provinces, ranking] = await Promise.all([getProvinces(), getNeighborhoodRanking()]);
 
   return (
     <div>
@@ -21,6 +22,7 @@ export default async function MahalehPage() {
       <h1 className="text-2xl font-bold text-gray-900 border-r-4 border-[var(--bama-primary)] pr-3 mb-6">
         اخبار محلات کشور
       </h1>
+      <NeighborhoodRanking ranking={ranking} />
       <p className="text-gray-600 mb-6">
         استان خود را انتخاب کنید تا شهرستان‌ها و سپس محلات را ببینید.
       </p>

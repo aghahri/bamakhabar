@@ -46,6 +46,84 @@ export async function getNeighborhoodsByCity(
   }));
 }
 
+export type NeighborhoodRankItem = {
+  id: string;
+  name: string;
+  slug: string;
+  provinceSlug: string | null;
+  citySlug: string | null;
+  statusColor: string | null;
+  statusScore: number | null;
+};
+
+export type NeighborhoodRanking = {
+  red: NeighborhoodRankItem[];
+  yellow: NeighborhoodRankItem[];
+  green: NeighborhoodRankItem[];
+};
+
+/** پنج محله پرخطر (قرمز)، پنج زرد، پنج سبز برای نمایش رنکینگ */
+export async function getNeighborhoodRanking(): Promise<NeighborhoodRanking> {
+  const list = await prisma.neighborhood.findMany({
+    where: {
+      statusColor: { not: null },
+      provinceSlug: { not: null },
+      citySlug: { not: null },
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      provinceSlug: true,
+      citySlug: true,
+      statusColor: true,
+      statusScore: true,
+    },
+    orderBy: { statusScore: 'asc' },
+  });
+
+  const red = list
+    .filter((n) => n.statusColor === 'red')
+    .slice(0, 5)
+    .map((n) => ({
+      id: n.id,
+      name: n.name,
+      slug: n.slug,
+      provinceSlug: n.provinceSlug,
+      citySlug: n.citySlug,
+      statusColor: n.statusColor,
+      statusScore: n.statusScore,
+    }));
+
+  const yellow = list
+    .filter((n) => n.statusColor === 'yellow')
+    .slice(0, 5)
+    .map((n) => ({
+      id: n.id,
+      name: n.name,
+      slug: n.slug,
+      provinceSlug: n.provinceSlug,
+      citySlug: n.citySlug,
+      statusColor: n.statusColor,
+      statusScore: n.statusScore,
+    }));
+
+  const green = list
+    .filter((n) => n.statusColor === 'green')
+    .slice(0, 5)
+    .map((n) => ({
+      id: n.id,
+      name: n.name,
+      slug: n.slug,
+      provinceSlug: n.provinceSlug,
+      citySlug: n.citySlug,
+      statusColor: n.statusColor,
+      statusScore: n.statusScore,
+    }));
+
+  return { red, yellow, green };
+}
+
 export async function getNeighborhoodBySlug(
   provinceSlug: string,
   citySlug: string,
