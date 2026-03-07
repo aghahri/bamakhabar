@@ -168,6 +168,8 @@ async function main() {
 
       const slug = `sample-${hood.slug}-${i}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const createdAt = new Date(now.getTime() - (10 - i) * 24 * 60 * 60 * 1000);
+      const imageSeed = `${hood.slug}-${i}`.replace(/[^a-z0-9-]/gi, '');
+      const imageUrl = `https://picsum.photos/seed/${imageSeed}/800/500`;
 
       await prisma.news.create({
         data: {
@@ -175,6 +177,7 @@ async function main() {
           slug,
           summary: title,
           body,
+          imageUrl,
           neighborhoodId: hood.id,
           categories: { connect: catIds.map((id) => ({ id })) },
           published: true,
