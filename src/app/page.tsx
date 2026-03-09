@@ -101,6 +101,36 @@ export default async function HomePage() {
           {rest.length === 0 && featuredList.length === 0 && (
             <p className="text-center text-gray-500 py-8">خبری منتشر نشده است.</p>
           )}
+
+          <section className="mt-10">
+            <h2 className="text-lg font-bold text-gray-800 border-r-4 border-[var(--bama-primary)] pr-3 mb-4">
+              نقشه و اطلاعات محلات
+            </h2>
+            <p className="text-sm text-gray-600 mb-3">
+              نقشه محلات و لینک گروه‌های محلی از ایران‌ریجنز — در همین صفحه مشاهده کنید.
+            </p>
+            <div className="rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
+              <iframe
+                src={process.env.NEXT_PUBLIC_IRANREGIONS_URL || 'https://iranregions.com'}
+                title="نقشه محلات ایران - ایران‌ریجنز"
+                className="w-full h-[520px] min-h-[400px] border-0"
+                allow="fullscreen"
+                loading="lazy"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              در صورت عدم نمایش،{' '}
+              <a
+                href={process.env.NEXT_PUBLIC_IRANREGIONS_URL || 'https://iranregions.com'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--bama-primary)] hover:underline"
+              >
+                نقشه محلات
+              </a>
+              {' '}را در پنجره جدید باز کنید.
+            </p>
+          </section>
         </section>
       </div>
     </div>
