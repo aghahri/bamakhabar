@@ -3,20 +3,51 @@
 import { useState, useEffect } from 'react';
 
 function normalize(s: string): string {
-  return s.replace(/\s+/g, ' ').trim();
+  return s
+    .replace(/\s+/g, ' ')
+    .replace(/ي/g, 'ی') // عربی به فارسی
+    .replace(/ك/g, 'ک')
+    .trim();
+}
+
+/** از نام نقشه پیشوند «منطقه N» را برمی‌دارد تا با نام شهر تطبیق دهیم، مثلاً «منطقه ۳ تهران» → «تهران» */
+function extractCityFromMapName(mapName: string): string {
+  const n = normalize(mapName);
+  const withoutRegion = n.replace(/^منطقه\s*[\d۰-۹0-9]+\s*/i, '').trim();
+  return withoutRegion || n;
 }
 
 type MapItem = { map_id: string; map_name: string; view_url: string };
 
 function findMapForCity(maps: MapItem[], cityName: string): MapItem | null {
-  const cityNorm = normalize(cityName);
-  if (!cityNorm) return null;
-  const exact = maps.find((m) => normalize(m.map_name) === cityNorm);
-  if (exact) return exact;
-  const includes = maps.find(
-    (m) => normalize(m.map_name).includes(cityNorm) || cityNorm.includes(normalize(m.map_name))
+  let cityNorm = normalize(cityName);
+  if (!cityNorm || !maps.length) return null;
+  // حذف پیشوندهای رایج تا «تهران» با «شهرستان تهران» یا «شهر تهران» هم بخورد
+  cityNorm = cityNorm.replace(/^(شهرستان|شهر)\s+/i, '').trim() || cityNorm;
+
+  const norm = (m: MapItem) => normalize(m.map_name);
+  const cityPart = (m: MapItem) => extractCityFromMapName(m.map_name);
+
+  // تطابق دقیق با نام نقشه یا با بخش شهر (بعد از حذف «منطقه N»)
+  let match = maps.find((m) => norm(m) === cityNorm || cityPart(m) === cityNorm);
+  if (match) return match;
+
+  // نام نقشه یا بخش شهر شامل نام شهر باشد (یا برعکس)
+  match = maps.find(
+    (m) =>
+      norm(m).includes(cityNorm) ||
+      cityNorm.includes(norm(m)) ||
+      cityPart(m).includes(cityNorm) ||
+      cityNorm.includes(cityPart(m))
   );
-  return includes ?? maps.find((m) => normalize(m.map_name).startsWith(cityNorm)) ?? null;
+  if (match) return match;
+
+  // نام نقشه به نام شهر ختم شود، مثلاً «محلات تهران»
+  match = maps.find((m) => norm(m).endsWith(cityNorm) || cityPart(m).endsWith(cityNorm));
+  if (match) return match;
+
+  match = maps.find((m) => norm(m).startsWith(cityNorm) || cityPart(m).startsWith(cityNorm));
+  return match ?? null;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_IRANREGIONS_URL || 'https://iranregions.com';
@@ -25,17 +56,21 @@ export function CityIranRegionsMap({ cityName }: { cityName: string }) {
   /** فقط وقتی نقشهٔ این شهر از API پیدا شد iframe را با همان map_id نشان می‌دهیم؛ صفحهٔ اول ایران‌ریجنز لود نمی‌شود. */
   const [mapId, setMapId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  /** true = API جواب داد و لیست نقشه داشت، false = API خطا یا خالی */
+  const [apiHasMaps, setApiHasMaps] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
       setMapId(null);
+      setApiHasMaps(false);
       try {
         const res = await fetch('/api/iranregions-summary');
         const data = await res.json();
         if (cancelled) return;
         const maps: MapItem[] = data?.maps ?? [];
+        setApiHasMaps(maps.length > 0);
         const matched = findMapForCity(maps, cityName);
         if (matched) setMapId(matched.map_id);
       } catch {
@@ -71,7 +106,9 @@ export function CityIranRegionsMap({ cityName }: { cityName: string }) {
         </h2>
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
           <p className="text-gray-600 mb-3">
-            نقشه این شهر در ایران‌ریجنز موجود نیست یا در دسترس نیست.
+            {apiHasMaps
+              ? `نقشه «${cityName}» در لیست نقشه‌های ایران‌ریجنز یافت نشد. نام نقشه در ایران‌ریجنز باید با نام شهر هم‌خوانی داشته باشد (مثلاً تهران، منطقه ۳ تهران).`
+              : 'در حال حاضر نقشه‌ای از ایران‌ریجنز بارگذاری نشده یا سرویس در دسترس نیست.'}
           </p>
           <a
             href={BASE_URL.replace(/\/$/, '')}
