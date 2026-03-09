@@ -28,7 +28,7 @@ function Block({
       ) : (
         <ol className={`list-decimal list-inside space-y-1 ${compact ? 'text-sm' : 'space-y-1.5'}`}>
           {items.map((n) => {
-            const label = n.cityName ? `${n.name} (${n.cityName})` : n.name;
+            const label = n.cityName ? `${n.name}، ${n.cityName}` : n.name;
             return (
               <li key={n.id}>
                 {n.provinceSlug && n.citySlug ? (
