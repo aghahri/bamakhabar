@@ -66,7 +66,9 @@ export function CityIranRegionsMap({ cityName }: { cityName: string }) {
       setMapId(null);
       setApiHasMaps(false);
       try {
-        const res = await fetch('/api/iranregions-summary');
+        // درخواست مستقیم به ایران‌ریجنز (با CORS) تا از مشکل دسترسی سرور باماخبر به ایران‌ریجنز جلوگیری شود
+        const apiUrl = `${BASE_URL.replace(/\/$/, '')}/api/public/summary`;
+        const res = await fetch(apiUrl);
         const data = await res.json();
         if (cancelled) return;
         const maps: MapItem[] = data?.maps ?? [];
