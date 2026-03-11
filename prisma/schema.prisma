@@ -55,6 +55,8 @@ model Neighborhood {
   statusColor     String?   // green | yellow | red
   statusScore     Float?    // -1 to 1
   statusUpdatedAt DateTime?
+  latitude        Float?    // آینده: مرکز تقریبی برای نقشه
+  longitude       Float?
   news            News[]
   users           User[]
 }
@@ -64,6 +66,47 @@ model NewsletterSubscription {
   email           String   @unique
   neighborhoodIds String[] // id محلات برای دریافت خبرنامه
   createdAt       DateTime @default(now())
+}
+
+// --------------- Hyperlocal-ready: مدل‌ها برای توسعه آینده (شهر، منطقه، موضوع محلی، GIS، امتیاز مرتبط‌بودن) ---------------
+
+enum IngestionStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+/// محتوای خام ورودی (قبل از تبدیل به خبر). آماده برای pipeline آینده و استخراج شهر/منطقه/محله.
+model Ingestion {
+  id                 String          @id @default(cuid())
+  sourceUrl          String?         @unique
+  sourceType         String?         // e.g. "rss", "scraper", "manual"
+  rawTitle           String?
+  rawBody            String?
+  rawSummary         String?
+  // استخراج شده از متن (برای تطبیق بعدی با city/district/neighborhood)
+  extractedCity      String?
+  extractedDistrict  String?
+  extractedNeighborhoodName String?
+  status             IngestionStatus @default(PENDING)
+  processedNewsId    String?         @unique
+  processedNews      News?           @relation(fields: [processedNewsId], references: [id], onDelete: SetNull)
+  errorMessage       String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+/// موضوعات محلی برای نگاشت بعدی به منطقه/شهر (بدون پیاده‌سازی نقشه؛ فقط مدل آماده).
+model LocalTopic {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  areaType  String?  // e.g. "city", "district", "neighborhood", "general"
+  parentId  String?
+  parent    LocalTopic?  @relation("LocalTopicHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children  LocalTopic[] @relation("LocalTopicHierarchy")
+  news      News[]   @relation("NewsLocalTopics")
 }
 
 model News {
@@ -84,4 +127,14 @@ model News {
   viewCount      Int          @default(0)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  // --- Hyperlocal-ready (بدون استفاده اجباری؛ برای توسعه آینده) ---
+  city               String?   // شهر (مثلاً وقتی محله مشخص نیست)
+  district           String?   // منطقه/ناحیه
+  latitude           Float?    // مختصات جغرافیایی (بدون نقشه الان)
+  longitude          Float?
+  localRelevanceScore Float?  // امتیاز مرتبط‌بودن محلی (۰–۱)
+  localTopics        LocalTopic[] @relation("NewsLocalTopics")
+
+  ingestion          Ingestion?
 }
