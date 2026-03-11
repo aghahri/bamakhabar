@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { NewsletterForm } from './NewsletterForm';
 
 export function Footer() {
   return (
     <footer className="bg-[var(--bama-dark)] text-gray-300 mt-auto">
       <div className="container-custom py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Link href="/" className="text-xl font-bold text-white">
               باماخبر
@@ -14,12 +15,15 @@ export function Footer() {
             </p>
           </div>
           <div>
+            <NewsletterForm />
+          </div>
+          <div>
             <h4 className="font-semibold text-white mb-3">دسترسی سریع</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/" className="hover:text-white">صفحه اصلی</Link></li>
-              <li><Link href="/category/ejtemaei" className="hover:text-white">اجتماعی</Link></li>
-              <li><Link href="/category/farhangi" className="hover:text-white">فرهنگی</Link></li>
-              <li><Link href="/category/varzeshi" className="hover:text-white">ورزشی</Link></li>
+              <li><Link href="/search" className="hover:text-white">جستجو</Link></li>
+              <li><Link href="/rss" className="hover:text-white">فید RSS</Link></li>
+              <li><Link href="/mahaleh" className="hover:text-white">محلات</Link></li>
             </ul>
           </div>
           <div>

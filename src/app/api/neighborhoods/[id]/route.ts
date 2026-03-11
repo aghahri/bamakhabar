@@ -21,7 +21,8 @@ export async function PUT(
   }
 
   const { id } = await params;
-  const { name, province, city } = await req.json();
+  const body = await req.json();
+  const { name, province, city, description } = body;
   if (!name || !province || !city) {
     return NextResponse.json(
       { error: 'نام محله، استان و شهر الزامی است' },
@@ -47,6 +48,7 @@ export async function PUT(
       provinceSlug,
       city,
       citySlug,
+      description: typeof description === 'string' ? description : undefined,
     },
   });
 

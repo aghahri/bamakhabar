@@ -8,6 +8,7 @@ interface Neighborhood {
   slug: string;
   province: string | null;
   city: string | null;
+  description?: string | null;
 }
 
 export function NeighborhoodManager() {
@@ -18,6 +19,7 @@ export function NeighborhoodManager() {
   const [name, setName] = useState('');
   const [province, setProvince] = useState('');
   const [city, setCity] = useState('');
+  const [description, setDescription] = useState('');
 
   async function load() {
     setLoading(true);
@@ -46,6 +48,7 @@ export function NeighborhoodManager() {
     setName(n.name);
     setProvince(n.province || '');
     setCity(n.city || '');
+    setDescription(n.description || '');
   }
 
   function resetForm() {
@@ -53,6 +56,7 @@ export function NeighborhoodManager() {
     setName('');
     setProvince('');
     setCity('');
+    setDescription('');
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -63,7 +67,7 @@ export function NeighborhoodManager() {
       return;
     }
     try {
-      const payload = { name, province, city };
+      const payload = { name, province, city, description: description || undefined };
       const url = editingId ? `/api/neighborhoods/${editingId}` : '/api/neighborhoods';
       const method = editingId ? 'PUT' : 'POST';
       const res = await fetch(url, {
@@ -140,6 +144,16 @@ export function NeighborhoodManager() {
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
             />
           </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">درباره این محله (اختیاری)</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            placeholder="توضیح کوتاه درباره محله برای نمایش در صفحه محله"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+          />
         </div>
         <div className="flex gap-3">
           <button type="submit" className="btn-primary">

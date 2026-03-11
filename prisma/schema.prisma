@@ -51,11 +51,19 @@ model Neighborhood {
   provinceSlug    String?
   city            String?
   citySlug        String?
+  description     String?   // درباره این محله
   statusColor     String?   // green | yellow | red
   statusScore     Float?    // -1 to 1
   statusUpdatedAt DateTime?
   news            News[]
   users           User[]
+}
+
+model NewsletterSubscription {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  neighborhoodIds String[] // id محلات برای دریافت خبرنامه
+  createdAt       DateTime @default(now())
 }
 
 model News {

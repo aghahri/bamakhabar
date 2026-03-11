@@ -42,7 +42,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     },
     orderBy: { createdAt: 'desc' },
     take: 24,
-    include: { categories: true },
+    include: { categories: true, neighborhood: true },
   });
 
   return (
@@ -60,6 +60,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             imageUrl={n.imageUrl}
             categoryNames={n.categories.map((c) => c.name)}
             createdAt={n.createdAt}
+            regionLabel={n.neighborhood ? `${n.neighborhood.name}، ${n.neighborhood.city ?? ''}` : null}
           />
         ))}
       </div>

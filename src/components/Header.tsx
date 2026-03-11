@@ -10,6 +10,7 @@ export async function Header() {
 
   const links = [
     { href: '/', label: 'صفحه اصلی' },
+    { href: '/search', label: 'جستجو' },
     { href: '/mahaleh', label: 'اخبار محلات' },
     ...categories.map((cat) => ({ href: `/category/${cat.slug}`, label: cat.name })),
     { href: '/about', label: 'درباره ما' },

@@ -11,6 +11,7 @@ interface FeaturedItem {
   imageUrl: string | null;
   categoryNames: string[];
   createdAt: Date | string;
+  regionLabel?: string | null;
 }
 
 interface FeaturedSliderProps {
@@ -48,6 +49,7 @@ export function FeaturedSlider({ items }: FeaturedSliderProps) {
         categoryNames={current.categoryNames}
         createdAt={new Date(current.createdAt)}
         featured
+        regionLabel={current.regionLabel}
       />
       {items.length > 1 && (
         <>

@@ -13,13 +13,13 @@ async function getHomeData() {
       where: { published: true, featured: true },
       orderBy: { createdAt: 'desc' },
       take: 5,
-      include: { categories: true },
+      include: { categories: true, neighborhood: true },
     }),
     prisma.news.findMany({
       where: { published: true },
       orderBy: { createdAt: 'desc' },
       take: 16,
-      include: { categories: true },
+      include: { categories: true, neighborhood: true },
     }),
     getNeighborhoodRanking(),
   ]);
@@ -65,6 +65,7 @@ export default async function HomePage() {
               imageUrl: n.imageUrl,
               categoryNames: n.categories.map((c) => c.name),
               createdAt: n.createdAt,
+              regionLabel: n.neighborhood ? `${n.neighborhood.name}، ${n.neighborhood.city ?? ''}` : null,
             }))}
           />
         ) : (
@@ -95,6 +96,7 @@ export default async function HomePage() {
                 imageUrl={news.imageUrl}
                 categoryNames={news.categories.map((c) => c.name)}
                 createdAt={news.createdAt}
+                regionLabel={news.neighborhood ? `${news.neighborhood.name}، ${news.neighborhood.city ?? ''}` : null}
               />
             ))}
           </div>

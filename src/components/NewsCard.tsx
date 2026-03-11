@@ -10,6 +10,8 @@ interface NewsCardProps {
   categoryNames: string[];
   createdAt: Date;
   featured?: boolean;
+  /** نمایش منطقه: محله، شهر */
+  regionLabel?: string | null;
 }
 
 export function NewsCard({
@@ -20,6 +22,7 @@ export function NewsCard({
   categoryNames,
   createdAt,
   featured = false,
+  regionLabel,
 }: NewsCardProps) {
   const dateStr = new Date(createdAt).toLocaleDateString('fa-IR', {
     year: 'numeric',
@@ -45,6 +48,11 @@ export function NewsCard({
               <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-4xl">📰</div>
             )}
             <div className="absolute top-3 right-3 flex flex-wrap gap-1">
+              {regionLabel && (
+                <span className="bg-gray-800/80 text-white text-xs px-2 py-1 rounded">
+                  {regionLabel}
+                </span>
+              )}
               {categoryNames.map((name) => (
                 <span key={name} className="bg-[var(--bama-primary)] text-white text-xs px-2 py-1 rounded">
                   {name}
@@ -81,6 +89,11 @@ export function NewsCard({
           <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-3xl">📰</div>
         )}
         <div className="absolute top-2 right-2 flex flex-wrap gap-1">
+          {regionLabel && (
+            <span className="bg-gray-800/80 text-white text-xs px-2 py-0.5 rounded">
+              {regionLabel}
+            </span>
+          )}
           {categoryNames.map((name) => (
             <span key={name} className="bg-[var(--bama-primary)] text-white text-xs px-2 py-0.5 rounded">
               {name}

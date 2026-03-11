@@ -45,7 +45,13 @@ export default async function NeighborhoodNewsPage({ params }: Props) {
         <h1 className="text-2xl font-bold text-gray-900 border-r-4 border-[var(--bama-primary)] pr-3">
           اخبار محله {neighborhood.name}
         </h1>
-        {neighborhood.statusColor && (
+        {neighborhood.description && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 text-gray-700 text-sm leading-relaxed">
+          <h2 className="font-bold text-gray-800 mb-2">درباره محله {neighborhood.name}</h2>
+          <p className="whitespace-pre-wrap">{neighborhood.description}</p>
+        </div>
+      )}
+      {neighborhood.statusColor && (
           <span
             className={`px-3 py-1 rounded-full text-sm font-medium ${
               neighborhood.statusColor === 'green'
@@ -72,6 +78,7 @@ export default async function NeighborhoodNewsPage({ params }: Props) {
               imageUrl={n.imageUrl}
               categoryNames={n.categories.map((c) => c.name)}
               createdAt={n.createdAt}
+              regionLabel={`${neighborhood.name}، ${city.name}`}
             />
           ))}
         </div>

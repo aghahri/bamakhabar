@@ -30,6 +30,9 @@ export default async function AdminLayout({
               <Link href="/admin/neighborhoods" className="hover:underline">
                 محلات
               </Link>
+              <Link href="/admin/stats" className="hover:underline">
+                آمار
+              </Link>
               {(session.type === 'admin' || (session.type === 'user' && session.role === 'ADMIN')) && (
                 <Link href="/admin/users" className="hover:underline">
                   کاربران
