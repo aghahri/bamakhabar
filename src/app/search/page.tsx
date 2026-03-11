@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { NewsCard } from '@/components/NewsCard';
 import { getProvinces, getCitiesByProvince, getProvinceBySlug, getCityBySlug } from '@/lib/locations';
@@ -32,7 +33,7 @@ export default async function SearchPage({ searchParams }: Props) {
     if (city) canonicalCitySlug = city.slug;
   }
 
-  const where: Parameters<typeof prisma.news.findMany>[0]['where'] = {
+  const where: Prisma.NewsWhereInput = {
     published: true,
   };
   if (q?.trim()) {
@@ -48,9 +49,12 @@ export default async function SearchPage({ searchParams }: Props) {
     ];
   }
   if (canonicalProvinceSlug || canonicalCitySlug) {
-    where.neighborhood = {};
-    if (canonicalProvinceSlug) where.neighborhood.provinceSlug = canonicalProvinceSlug;
-    if (canonicalCitySlug) where.neighborhood.citySlug = canonicalCitySlug;
+    where.neighborhood = {
+      is: {
+        ...(canonicalProvinceSlug && { provinceSlug: canonicalProvinceSlug }),
+        ...(canonicalCitySlug && { citySlug: canonicalCitySlug }),
+      },
+    };
   }
 
   const news = await prisma.news.findMany({
