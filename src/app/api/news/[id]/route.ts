@@ -27,10 +27,21 @@ export async function PUT(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const { id } = await params;
-  const existing = await prisma.news.findUnique({ where: { id } });
+  const existing = await prisma.news.findUnique({
+    where: { id },
+    include: { categories: true },
+  });
   if (!existing) return NextResponse.json({ error: 'خبر یافت نشد' }, { status: 404 });
   const reporterNeighborhoodId = session.type === 'user' ? session.neighborhoodId : null;
   const isReporter = session.type === 'user' && session.role === 'REPORTER';
+  const setadCategory = await prisma.category.findUnique({ where: { slug: 'setad-2020' } });
+  const existingIsSetad = setadCategory && existing.categories.some((c) => c.id === setadCategory.id);
+  if (isReporter && existingIsSetad) {
+    return NextResponse.json(
+      { error: 'ویرایش اخبار ستاد توانمندسازی محلات ۲۰۲۰ فقط برای ادیتور یا مدیر امکان‌پذیر است.' },
+      { status: 403 }
+    );
+  }
   if (isReporter && existing.neighborhoodId !== reporterNeighborhoodId) {
     return NextResponse.json({ error: 'فقط اخبار محله خود را می‌توانید ویرایش کنید' }, { status: 403 });
   }
@@ -50,6 +61,12 @@ export async function PUT(
     return NextResponse.json(
       { error: 'عنوان، متن و حداقل یک دسته‌بندی الزامی است' },
       { status: 400 }
+    );
+  }
+  if (setadCategory && (categoryIds as string[]).includes(setadCategory.id) && isReporter) {
+    return NextResponse.json(
+      { error: 'انتساب خبر به ستاد توانمندسازی محلات ۲۰۲۰ فقط برای ادیتور یا مدیر امکان‌پذیر است.' },
+      { status: 403 }
     );
   }
   if (isReporter) {

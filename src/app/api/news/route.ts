@@ -58,6 +58,14 @@ export async function POST(req: NextRequest) {
     }
     const reporterNeighborhoodId = session.type === 'user' ? session.neighborhoodId : null;
     const isReporter = session.type === 'user' && session.role === 'REPORTER';
+    // اخبار ستاد توانمندسازی محلات ۲۰۲۰ فقط توسط ادیتور/ادمین قابل ثبت است
+    const setadCategory = await prisma.category.findUnique({ where: { slug: 'setad-2020' } });
+    if (setadCategory && (categoryIds as string[]).includes(setadCategory.id) && isReporter) {
+      return NextResponse.json(
+        { error: 'ثبت خبر و گزارش ستاد توانمندسازی محلات ۲۰۲۰ فقط برای کاربران با نقش ادیتور یا مدیر امکان‌پذیر است.' },
+        { status: 403 }
+      );
+    }
     if (isReporter) {
       neighborhoodId = reporterNeighborhoodId ?? null;
       featured = false;

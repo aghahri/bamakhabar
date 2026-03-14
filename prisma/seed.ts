@@ -19,6 +19,7 @@ async function main() {
     { name: 'ورزشی', slug: 'varzeshi', order: 5 },
     { name: 'اقتصاد', slug: 'eghtesad', order: 6 },
     { name: 'محیط زیست', slug: 'mohit-zist', order: 7 },
+    { name: 'ستاد توانمندسازی محلات ۲۰۲۰', slug: 'setad-2020', order: 8 },
   ];
   for (const c of categories) {
     await prisma.category.upsert({

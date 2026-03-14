@@ -24,6 +24,7 @@ export function Footer() {
               <li><Link href="/search" className="hover:text-white">جستجو</Link></li>
               <li><Link href="/rss" className="hover:text-white">فید RSS</Link></li>
               <li><Link href="/mahaleh" className="hover:text-white">محلات</Link></li>
+              <li><Link href="/category/setad-2020" className="hover:text-white">ستاد توانمندسازی محلات ۲۰۲۰</Link></li>
             </ul>
           </div>
           <div>

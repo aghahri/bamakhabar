@@ -66,7 +66,10 @@ export function NewsForm({
   useEffect(() => {
     fetch('/api/categories')
       .then((r) => r.json())
-      .then(setCategories);
+      .then((list: Category[]) => {
+        // خبرنگار محله حق انتخاب دسته «ستاد توانمندسازی محلات ۲۰۲۰» را ندارد
+        setCategories(isReporter ? list.filter((c) => c.slug !== 'setad-2020') : list);
+      });
     if (isReporter && reporterNeighborhoodId) {
       fetch('/api/neighborhoods')
         .then((r) => r.json())
@@ -195,7 +198,9 @@ export function NewsForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">دسته‌بندی‌ها *</label>
         <div className="flex flex-wrap gap-2">
-          {categories.map((c) => (
+          {categories
+            .filter((c) => !isReporter || c.slug !== 'setad-2020')
+            .map((c) => (
             <button
               key={c.id}
               type="button"
