@@ -16,6 +16,8 @@ interface Neighborhood {
   id: string;
   name: string;
   slug: string;
+  city?: string | null;
+  province?: string | null;
 }
 
 interface NewsFormProps {
@@ -81,7 +83,14 @@ export function NewsForm({
     } else {
       fetch('/api/neighborhoods')
         .then((r) => r.json())
-        .then(setNeighborhoods);
+        .then((list: Neighborhood[]) => {
+          list.sort((a, b) => {
+            const cityA = (a.city ?? '').localeCompare(b.city ?? '', 'fa');
+            if (cityA !== 0) return cityA;
+            return (a.name ?? '').localeCompare(b.name ?? '', 'fa');
+          });
+          setNeighborhoods(list);
+        });
     }
   }, [isReporter, reporterNeighborhoodId]);
 
@@ -227,7 +236,7 @@ export function NewsForm({
             <option value="">بدون محله</option>
             {neighborhoods.map((n) => (
               <option key={n.id} value={n.id}>
-                {n.name}
+                {n.city ? `شهرستان ${n.city}، محله ${n.name}` : n.name}
               </option>
             ))}
           </select>
@@ -236,7 +245,11 @@ export function NewsForm({
       {isReporter && neighborhoods.length > 0 && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">محله</label>
-          <p className="text-gray-600 py-1">{neighborhoods[0].name}</p>
+          <p className="text-gray-600 py-1">
+            {neighborhoods[0].city
+              ? `شهرستان ${neighborhoods[0].city}، محله ${neighborhoods[0].name}`
+              : neighborhoods[0].name}
+          </p>
         </div>
       )}
       <div className="flex gap-6">
