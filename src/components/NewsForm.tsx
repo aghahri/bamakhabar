@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RichTextEditor } from './RichTextEditor';
-import { ImageUploader } from './ImageUploader';
-import { VideoUploader } from './VideoUploader';
+import { MultiImageUploader } from './MultiImageUploader';
+import { MultiVideoUploader } from './MultiVideoUploader';
 
 interface Category {
   id: string;
@@ -27,6 +27,8 @@ interface NewsFormProps {
   defaultBody?: string;
   defaultImageUrl?: string | null;
   defaultVideoUrl?: string | null;
+  defaultImageUrls?: string[] | null;
+  defaultVideoUrls?: string[] | null;
   defaultCategoryIds?: string[];
   defaultNeighborhoodId?: string | null;
   defaultPublished?: boolean;
@@ -40,8 +42,10 @@ export function NewsForm({
   defaultTitle = '',
   defaultSummary = '',
   defaultBody = '',
-  defaultImageUrl = '',
-  defaultVideoUrl = '',
+  defaultImageUrl = null,
+  defaultVideoUrl = null,
+  defaultImageUrls = null,
+  defaultVideoUrls = null,
   defaultCategoryIds = [],
   defaultNeighborhoodId = '',
   defaultPublished = false,
@@ -55,8 +59,12 @@ export function NewsForm({
   const [title, setTitle] = useState(defaultTitle);
   const [summary, setSummary] = useState(defaultSummary ?? '');
   const [body, setBody] = useState(defaultBody);
-  const [imageUrl, setImageUrl] = useState(defaultImageUrl ?? '');
-  const [videoUrl, setVideoUrl] = useState(defaultVideoUrl ?? '');
+  const [imageUrls, setImageUrls] = useState<string[]>(
+    defaultImageUrls && defaultImageUrls.length > 0 ? defaultImageUrls : defaultImageUrl ? [defaultImageUrl] : []
+  );
+  const [videoUrls, setVideoUrls] = useState<string[]>(
+    defaultVideoUrls && defaultVideoUrls.length > 0 ? defaultVideoUrls : defaultVideoUrl ? [defaultVideoUrl] : []
+  );
   const [categoryIds, setCategoryIds] = useState<string[]>(defaultCategoryIds);
   const effectiveNeighborhoodId = isReporter && reporterNeighborhoodId ? reporterNeighborhoodId : (defaultNeighborhoodId ?? '');
   const [neighborhoodId, setNeighborhoodId] = useState(effectiveNeighborhoodId);
@@ -100,8 +108,20 @@ export function NewsForm({
     setTitle(defaultTitle);
     setSummary(defaultSummary ?? '');
     setBody(defaultBody);
-    setImageUrl(defaultImageUrl ?? '');
-    setVideoUrl(defaultVideoUrl ?? '');
+    setImageUrls(
+      defaultImageUrls && defaultImageUrls.length > 0
+        ? defaultImageUrls
+        : defaultImageUrl
+          ? [defaultImageUrl]
+          : []
+    );
+    setVideoUrls(
+      defaultVideoUrls && defaultVideoUrls.length > 0
+        ? defaultVideoUrls
+        : defaultVideoUrl
+          ? [defaultVideoUrl]
+          : []
+    );
     setCategoryIds(defaultCategoryIds);
     setNeighborhoodId(isReporter && reporterNeighborhoodId ? reporterNeighborhoodId : (defaultNeighborhoodId ?? ''));
     setPublished(defaultPublished);
@@ -113,6 +133,8 @@ export function NewsForm({
     defaultBody,
     defaultImageUrl,
     defaultVideoUrl,
+    defaultImageUrls,
+    defaultVideoUrls,
     defaultCategoryIds,
     defaultNeighborhoodId,
     defaultPublished,
@@ -140,8 +162,8 @@ export function NewsForm({
         title,
         summary: summary || null,
         body,
-        imageUrl: imageUrl || null,
-        videoUrl: videoUrl || null,
+        imageUrls: imageUrls.length ? imageUrls : [],
+        videoUrls: videoUrls.length ? videoUrls : [],
         categoryIds,
         neighborhoodId: neighborhoodId || null,
         published,
@@ -197,12 +219,12 @@ export function NewsForm({
         <RichTextEditor content={body} onChange={setBody} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">تصویر اصلی (اختیاری)</label>
-        <ImageUploader value={imageUrl} onChange={setImageUrl} />
+        <label className="block text-sm font-medium text-gray-700 mb-1">تصاویر (اختیاری)</label>
+        <MultiImageUploader values={imageUrls} onChange={setImageUrls} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">ویدیو (اختیاری)</label>
-        <VideoUploader value={videoUrl} onChange={setVideoUrl} />
+        <label className="block text-sm font-medium text-gray-700 mb-1">ویدیوها (اختیاری)</label>
+        <MultiVideoUploader values={videoUrls} onChange={setVideoUrls} />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">دسته‌بندی‌ها *</label>

@@ -12,7 +12,11 @@ export async function Header() {
     { href: '/', label: 'صفحه اصلی' },
     { href: '/search', label: 'جستجو' },
     { href: '/mahaleh', label: 'اخبار محلات' },
-    ...categories.map((cat) => ({ href: `/category/${cat.slug}`, label: cat.name })),
+    { href: '/music', label: 'موزیک' },
+    { href: '/video', label: 'ویدیو' },
+    ...categories
+      .filter((cat) => !['music', 'video'].includes(cat.slug))
+      .map((cat) => ({ href: `/category/${cat.slug}`, label: cat.name })),
     { href: '/about', label: 'درباره ما' },
   ];
 

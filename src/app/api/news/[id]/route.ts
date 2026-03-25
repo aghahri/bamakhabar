@@ -52,6 +52,8 @@ export async function PUT(
     body: bodyText,
     imageUrl,
     videoUrl,
+    imageUrls,
+    videoUrls,
     categoryIds,
     neighborhoodId,
     published,
@@ -73,6 +75,10 @@ export async function PUT(
     neighborhoodId = reporterNeighborhoodId ?? null;
     featured = false;
   }
+
+  const imageUrlsArr: string[] = Array.isArray(imageUrls) ? imageUrls : imageUrl ? [imageUrl] : [];
+  const videoUrlsArr: string[] = Array.isArray(videoUrls) ? videoUrls : videoUrl ? [videoUrl] : [];
+
   const sanitizedBody = sanitizeHtml(bodyText);
   const news = await prisma.news.update({
     where: { id },
@@ -80,8 +86,10 @@ export async function PUT(
       title,
       summary: summary ?? null,
       body: sanitizedBody,
-      imageUrl: imageUrl ?? null,
-      videoUrl: videoUrl ?? null,
+      imageUrl: imageUrlsArr[0] ?? null,
+      videoUrl: videoUrlsArr[0] ?? null,
+      imageUrls: imageUrlsArr,
+      videoUrls: videoUrlsArr,
       categories: {
         set: (categoryIds as string[]).map((cid: string) => ({ id: cid })),
       },

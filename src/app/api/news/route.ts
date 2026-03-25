@@ -45,6 +45,8 @@ export async function POST(req: NextRequest) {
       body: bodyText,
       imageUrl,
       videoUrl,
+      imageUrls,
+      videoUrls,
       categoryIds,
       neighborhoodId,
       published,
@@ -70,6 +72,10 @@ export async function POST(req: NextRequest) {
       neighborhoodId = reporterNeighborhoodId ?? null;
       featured = false;
     }
+
+    const imageUrlsArr: string[] = Array.isArray(imageUrls) ? imageUrls : imageUrl ? [imageUrl] : [];
+    const videoUrlsArr: string[] = Array.isArray(videoUrls) ? videoUrls : videoUrl ? [videoUrl] : [];
+
     let slug = slugify(title);
     const existing = await prisma.news.findUnique({ where: { slug } });
     if (existing) slug = `${slug}-${Date.now()}`;
@@ -80,8 +86,10 @@ export async function POST(req: NextRequest) {
         slug,
         summary: summary ?? null,
         body: sanitizedBody,
-        imageUrl: imageUrl ?? null,
-        videoUrl: videoUrl ?? null,
+        imageUrl: imageUrlsArr[0] ?? null,
+        videoUrl: videoUrlsArr[0] ?? null,
+        imageUrls: imageUrlsArr,
+        videoUrls: videoUrlsArr,
         categories: {
           connect: (categoryIds as string[]).map((id: string) => ({ id })),
         },
