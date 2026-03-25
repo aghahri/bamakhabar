@@ -11,6 +11,21 @@ function slugify(text: string): string {
 }
 
 export async function GET() {
+  // برای اینکه دسته‌های موزیک/ویدیو حتی بدون اجرای seed مجدد هم همیشه وجود داشته باشند،
+  // قبل از برگشت لیست، آن‌ها را upsert می‌کنیم.
+  await Promise.all([
+    prisma.category.upsert({
+      where: { slug: 'music' },
+      update: {},
+      create: { name: 'موزیک', slug: 'music', order: 9 },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'video' },
+      update: {},
+      create: { name: 'ویدیو', slug: 'video', order: 10 },
+    }),
+  ]);
+
   const list = await prisma.category.findMany({ orderBy: { order: 'asc' } });
   return NextResponse.json(list);
 }
