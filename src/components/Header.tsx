@@ -12,8 +12,7 @@ export async function Header() {
     { href: '/', label: 'صفحه اصلی' },
     { href: '/search', label: 'جستجو' },
     { href: '/mahaleh', label: 'اخبار محلات' },
-    { href: '/music', label: 'موزیک' },
-    { href: '/video', label: 'ویدیو' },
+    { href: '/musicvideo', label: 'موزیک ویدیو' },
     ...categories
       .filter((cat) => !['music', 'video'].includes(cat.slug))
       .map((cat) => ({ href: `/category/${cat.slug}`, label: cat.name })),
