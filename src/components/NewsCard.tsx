@@ -36,17 +36,13 @@ export function NewsCard({
       <Link href={`/news/${slug}`} className="news-card block group">
         <div className="grid md:grid-cols-2 gap-0">
           <div className="relative h-64 md:h-full min-h-[280px] bg-gray-200">
-            {imageUrl ? (
-              <NewsImage
-                src={imageUrl}
-                alt={title}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-4xl">📰</div>
-            )}
+            <NewsImage
+              src={imageUrl}
+              alt={title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
             <div className="absolute top-3 right-3 flex flex-wrap gap-1">
               {regionLabel && (
                 <span className="bg-gray-800/80 text-white text-xs px-2 py-1 rounded">
@@ -77,17 +73,13 @@ export function NewsCard({
   return (
     <Link href={`/news/${slug}`} className="news-card block group">
       <div className="relative h-48 bg-gray-200">
-        {imageUrl ? (
-          <NewsImage
-            src={imageUrl}
-            alt={title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-3xl">📰</div>
-        )}
+        <NewsImage
+          src={imageUrl}
+          alt={title}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
         <div className="absolute top-2 right-2 flex flex-wrap gap-1">
           {regionLabel && (
             <span className="bg-gray-800/80 text-white text-xs px-2 py-0.5 rounded">

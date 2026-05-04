@@ -183,7 +183,7 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
         </div>
       )}
 
-      {!firstVideo && firstImage && (
+      {!firstVideo && (
         <>
           <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-6 bg-gray-200">
             <NewsImage

@@ -2,9 +2,10 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { DEFAULT_NEWS_IMAGE, resolveNewsImage } from '@/lib/images';
 
 interface NewsImageProps {
-  src: string;
+  src: string | null | undefined;
   alt: string;
   fill?: boolean;
   className?: string;
@@ -25,19 +26,24 @@ function isLocalUpload(src: string) {
 
 export function NewsImage({ src, alt, fill, className, sizes }: NewsImageProps) {
   const [error, setError] = useState(false);
-  const imageSrc = getImageSrc(src);
+  const resolved = resolveNewsImage(src);
+  const isFallback = error || resolved === DEFAULT_NEWS_IMAGE;
+  const finalSrc = isFallback ? DEFAULT_NEWS_IMAGE : resolved;
+  const imageSrc = getImageSrc(finalSrc);
 
-  if (error) {
+  if (isFallback) {
     return (
-      <div
-        className={`flex items-center justify-center bg-gray-200 text-gray-400 ${fill ? 'absolute inset-0' : ''} ${className ?? ''}`}
-      >
-        <span className="text-4xl" aria-hidden>📰</span>
-      </div>
+      <Image
+        src={DEFAULT_NEWS_IMAGE}
+        alt={alt}
+        fill={fill}
+        className={className}
+        sizes={sizes}
+      />
     );
   }
 
-  if (isLocalUpload(src)) {
+  if (isLocalUpload(finalSrc)) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -54,7 +60,7 @@ export function NewsImage({ src, alt, fill, className, sizes }: NewsImageProps) 
 
   return (
     <Image
-      src={src}
+      src={finalSrc}
       alt={alt}
       fill={fill}
       className={className}
