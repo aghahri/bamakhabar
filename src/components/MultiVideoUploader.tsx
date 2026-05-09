@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { uploadWithProgress } from '@/lib/upload-with-progress';
 
 type Mode = 'url' | 'upload';
 
@@ -21,10 +22,15 @@ export function MultiVideoUploader({ values, onChange }: MultiVideoUploaderProps
   const [mode, setMode] = useState<Mode>('upload');
   const [urlInput, setUrlInput] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0, percent: 0 });
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const safeValues = useMemo(() => values ?? [], [values]);
+  const valuesRef = useRef(safeValues);
+  useEffect(() => {
+    valuesRef.current = safeValues;
+  }, [safeValues]);
 
   useEffect(() => {
     if (!safeValues.length) setUrlInput('');
@@ -34,47 +40,42 @@ export function MultiVideoUploader({ values, onChange }: MultiVideoUploaderProps
     async (files: FileList | File[]) => {
       setError('');
       setUploading(true);
-      try {
-        const list = Array.isArray(files) ? files : Array.from(files);
-        const uploadedUrls: string[] = [];
+      const list = Array.isArray(files) ? files : Array.from(files);
+      setProgress({ current: 0, total: list.length, percent: 0 });
+      const uploadedUrls: string[] = [];
+      const errors: string[] = [];
 
-        for (const file of list) {
-          if (!file) continue;
-          const formData = new FormData();
-          formData.append('file', file);
-          const res = await fetch('/api/upload-video', { method: 'POST', body: formData });
-          const text = await res.text();
-          let data: { url?: string; error?: string };
-          try {
-            data = text ? JSON.parse(text) : {};
-          } catch {
-            data = {};
-          }
-          if (!res.ok) {
-            throw new Error(data?.error || 'خطا در آپلود ویدیو');
-          }
-          if (data?.url) uploadedUrls.push(data.url);
+      for (let i = 0; i < list.length; i++) {
+        const file = list[i];
+        if (!file) continue;
+        setProgress({ current: i + 1, total: list.length, percent: 0 });
+        const res = await uploadWithProgress('/api/upload-video', file, (p) =>
+          setProgress({ current: i + 1, total: list.length, percent: p })
+        );
+        if (res.url) {
+          uploadedUrls.push(res.url);
+        } else if (res.error) {
+          errors.push(`${file.name || 'ویدیو'}: ${res.error}`);
         }
-
-        if (uploadedUrls.length) onChange([...safeValues, ...uploadedUrls]);
-      } catch (e: any) {
-        setError(e?.message || 'خطا در آپلود ویدیو');
-      } finally {
-        setUploading(false);
       }
+
+      if (uploadedUrls.length) {
+        onChange([...valuesRef.current, ...uploadedUrls]);
+      }
+      if (errors.length) {
+        setError(errors.join('\n'));
+      }
+      setUploading(false);
+      setProgress({ current: 0, total: 0, percent: 0 });
     },
-    [onChange, safeValues]
+    [onChange]
   );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
-      const file = e.dataTransfer.files?.[0];
-      // برای drop از چند فایل پشتیبانی ساده: هر فایل را جدا آپلود می‌کنیم
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         uploadFiles(e.dataTransfer.files);
-      } else if (file) {
-        uploadFiles([file]);
       }
     },
     [uploadFiles]
@@ -151,8 +152,8 @@ export function MultiVideoUploader({ values, onChange }: MultiVideoUploaderProps
           className={`
             flex flex-col items-center justify-center w-full rounded-lg border-2 border-dashed cursor-pointer
             transition-colors border-gray-300 hover:border-gray-400 bg-gray-50
-            ${uploading ? 'opacity-50 pointer-events-none' : ''}
-            h-32
+            ${uploading ? 'opacity-70 pointer-events-none' : ''}
+            min-h-[8rem] py-4
           `}
         >
           <input
@@ -164,12 +165,23 @@ export function MultiVideoUploader({ values, onChange }: MultiVideoUploaderProps
             className="hidden"
           />
           {uploading ? (
-            <span className="text-sm text-gray-500">در حال آپلود ویدیو...</span>
+            <div className="w-3/4 text-center">
+              <span className="text-sm text-gray-600">
+                در حال آپلود ویدیو {progress.current} از {progress.total} ({progress.percent}%)
+              </span>
+              <div className="mt-2 h-2 bg-gray-200 rounded overflow-hidden">
+                <div
+                  className="h-full bg-[var(--bama-primary)] transition-all"
+                  style={{ width: `${progress.percent}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-2">آپلود ویدیوهای حجیم ممکن است چند دقیقه طول بکشد.</p>
+            </div>
           ) : (
             <>
               <span className="text-2xl mb-1">🎬</span>
               <span className="text-sm text-gray-500">کلیک کنید یا ویدیوها را اینجا رها کنید</span>
-              <span className="text-xs text-gray-400 mt-1">MP4, WebM — چند فایل</span>
+              <span className="text-xs text-gray-400 mt-1">MP4, WebM, MOV — چند فایل (تا ۵۰۰ مگابایت هر فایل)</span>
             </>
           )}
         </div>
@@ -196,8 +208,7 @@ export function MultiVideoUploader({ values, onChange }: MultiVideoUploaderProps
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600 whitespace-pre-line">{error}</p>}
     </div>
   );
 }
-

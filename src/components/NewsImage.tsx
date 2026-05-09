@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DEFAULT_NEWS_IMAGE, resolveNewsImage } from '@/lib/images';
 
 interface NewsImageProps {
@@ -27,6 +27,11 @@ function isLocalUpload(src: string) {
 export function NewsImage({ src, alt, fill, className, sizes }: NewsImageProps) {
   const [error, setError] = useState(false);
   const resolved = resolveNewsImage(src);
+
+  useEffect(() => {
+    setError(false);
+  }, [resolved]);
+
   const isFallback = error || resolved === DEFAULT_NEWS_IMAGE;
   const finalSrc = isFallback ? DEFAULT_NEWS_IMAGE : resolved;
   const imageSrc = getImageSrc(finalSrc);

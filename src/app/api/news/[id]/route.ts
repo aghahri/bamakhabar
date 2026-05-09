@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin, requireEditorOrAdmin } from '@/lib/auth';
+import { requireEditorOrAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { sanitizeHtml } from '@/lib/sanitize';
 
@@ -106,12 +106,26 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let session;
   try {
-    await requireAdmin();
+    session = await requireEditorOrAdmin();
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const { id } = await params;
+  const existing = await prisma.news.findUnique({ where: { id } });
+  if (!existing) return NextResponse.json({ error: 'خبر یافت نشد' }, { status: 404 });
+
+  if (session.type === 'user' && session.role === 'REPORTER') {
+    const reporterNeighborhoodId = session.neighborhoodId;
+    if (!reporterNeighborhoodId || existing.neighborhoodId !== reporterNeighborhoodId) {
+      return NextResponse.json(
+        { error: 'فقط اخبار محله خود را می‌توانید حذف کنید' },
+        { status: 403 }
+      );
+    }
+  }
+
   await prisma.news.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { DeleteNewsButton } from '@/components/DeleteNewsButton';
 
 export default async function AdminPage() {
   const session = await getSession();
@@ -61,6 +62,7 @@ export default async function AdminPage() {
               <Link href={`/news/${n.slug}`} target="_blank" className="text-blue-600 hover:underline">
                 مشاهده
               </Link>
+              <DeleteNewsButton id={n.id} title={n.title} />
             </div>
           </div>
         ))}
@@ -125,6 +127,8 @@ export default async function AdminPage() {
                   >
                     مشاهده
                   </Link>
+                  {' · '}
+                  <DeleteNewsButton id={n.id} title={n.title} />
                 </td>
               </tr>
             ))}

@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth';
+import { requireEditorOrAdmin } from '@/lib/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 
-const MAX_SIZE = 100 * 1024 * 1024; // 100MB
+export const runtime = 'nodejs';
+export const maxDuration = 300;
+
+const MAX_SIZE = 500 * 1024 * 1024; // 500MB
 const ALLOWED_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAdmin();
+    await requireEditorOrAdmin();
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -24,14 +27,14 @@ export async function POST(req: NextRequest) {
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: 'فرمت ویدیو مجاز نیست. فقط MP4، WebM' },
+        { error: 'فرمت ویدیو مجاز نیست. فقط MP4، WebM یا MOV' },
         { status: 400 }
       );
     }
 
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { error: 'حجم ویدیو نباید بیشتر از ۱۰۰ مگابایت باشد' },
+        { error: 'حجم ویدیو نباید بیشتر از ۵۰۰ مگابایت باشد' },
         { status: 400 }
       );
     }
