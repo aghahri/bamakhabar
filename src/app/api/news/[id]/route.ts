@@ -55,10 +55,12 @@ export async function PUT(
     videoUrl,
     imageUrls,
     videoUrls,
+    videoThumbnailUrl,
     categoryIds,
     neighborhoodId,
     published,
     featured,
+    isBreaking,
   } = body;
   if (!title || !bodyText || !categoryIds || categoryIds.length === 0) {
     return NextResponse.json(
@@ -75,6 +77,7 @@ export async function PUT(
   if (isReporter) {
     neighborhoodId = reporterNeighborhoodId ?? null;
     featured = false;
+    isBreaking = false;
   }
 
   const rawImageUrls: string[] = Array.isArray(imageUrls) ? imageUrls : imageUrl ? [imageUrl] : [];
@@ -82,6 +85,10 @@ export async function PUT(
     .map((u) => normalizeStoredImageUrl(u))
     .filter((u): u is string => Boolean(u));
   const videoUrlsArr: string[] = Array.isArray(videoUrls) ? videoUrls : videoUrl ? [videoUrl] : [];
+  const videoThumb =
+    videoUrlsArr.length > 0 && typeof videoThumbnailUrl === 'string' && videoThumbnailUrl.trim()
+      ? videoThumbnailUrl.trim()
+      : null;
 
   const sanitizedBody = sanitizeHtml(bodyText);
   const news = await prisma.news.update({
@@ -92,6 +99,7 @@ export async function PUT(
       body: sanitizedBody,
       imageUrl: imageUrlsArr[0] ?? null,
       videoUrl: videoUrlsArr[0] ?? null,
+      videoThumbnailUrl: videoThumb,
       imageUrls: imageUrlsArr,
       videoUrls: videoUrlsArr,
       categories: {
@@ -100,6 +108,7 @@ export async function PUT(
       neighborhoodId: neighborhoodId || null,
       published: Boolean(published),
       featured: Boolean(featured),
+      isBreaking: Boolean(isBreaking),
     },
     include: { categories: true },
   });

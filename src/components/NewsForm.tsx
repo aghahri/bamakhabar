@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { RichTextEditor } from './RichTextEditor';
 import { MultiImageUploader } from './MultiImageUploader';
 import { MultiVideoUploader } from './MultiVideoUploader';
+import { ImageUploader } from './ImageUploader';
 
 interface Category {
   id: string;
@@ -29,10 +30,12 @@ interface NewsFormProps {
   defaultVideoUrl?: string | null;
   defaultImageUrls?: string[] | null;
   defaultVideoUrls?: string[] | null;
+  defaultVideoThumbnailUrl?: string | null;
   defaultCategoryIds?: string[];
   defaultNeighborhoodId?: string | null;
   defaultPublished?: boolean;
   defaultFeatured?: boolean;
+  defaultIsBreaking?: boolean;
   isReporter?: boolean;
   reporterNeighborhoodId?: string | null;
 }
@@ -46,10 +49,12 @@ export function NewsForm({
   defaultVideoUrl = null,
   defaultImageUrls = null,
   defaultVideoUrls = null,
+  defaultVideoThumbnailUrl = null,
   defaultCategoryIds = [],
   defaultNeighborhoodId = '',
   defaultPublished = false,
   defaultFeatured = false,
+  defaultIsBreaking = false,
   isReporter = false,
   reporterNeighborhoodId = null,
 }: NewsFormProps) {
@@ -65,11 +70,13 @@ export function NewsForm({
   const [videoUrls, setVideoUrls] = useState<string[]>(
     defaultVideoUrls && defaultVideoUrls.length > 0 ? defaultVideoUrls : defaultVideoUrl ? [defaultVideoUrl] : []
   );
+  const [videoThumbnailUrl, setVideoThumbnailUrl] = useState(defaultVideoThumbnailUrl ?? '');
   const [categoryIds, setCategoryIds] = useState<string[]>(defaultCategoryIds);
   const effectiveNeighborhoodId = isReporter && reporterNeighborhoodId ? reporterNeighborhoodId : (defaultNeighborhoodId ?? '');
   const [neighborhoodId, setNeighborhoodId] = useState(effectiveNeighborhoodId);
   const [published, setPublished] = useState(defaultPublished);
   const [featured, setFeatured] = useState(isReporter ? false : defaultFeatured);
+  const [isBreaking, setIsBreaking] = useState(isReporter ? false : defaultIsBreaking);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -122,10 +129,12 @@ export function NewsForm({
           ? [defaultVideoUrl]
           : []
     );
+    setVideoThumbnailUrl(defaultVideoThumbnailUrl ?? '');
     setCategoryIds(defaultCategoryIds);
     setNeighborhoodId(isReporter && reporterNeighborhoodId ? reporterNeighborhoodId : (defaultNeighborhoodId ?? ''));
     setPublished(defaultPublished);
     setFeatured(isReporter ? false : defaultFeatured);
+    setIsBreaking(isReporter ? false : defaultIsBreaking);
   }, [
     id,
     defaultTitle,
@@ -135,10 +144,12 @@ export function NewsForm({
     defaultVideoUrl,
     defaultImageUrls,
     defaultVideoUrls,
+    defaultVideoThumbnailUrl,
     defaultCategoryIds,
     defaultNeighborhoodId,
     defaultPublished,
     defaultFeatured,
+    defaultIsBreaking,
     isReporter,
     reporterNeighborhoodId,
   ]);
@@ -164,10 +175,12 @@ export function NewsForm({
         body,
         imageUrls: imageUrls.length ? imageUrls : [],
         videoUrls: videoUrls.length ? videoUrls : [],
+        videoThumbnailUrl: videoUrls.length && videoThumbnailUrl ? videoThumbnailUrl : null,
         categoryIds,
         neighborhoodId: neighborhoodId || null,
         published,
         featured,
+        isBreaking,
       };
       const url = id ? `/api/news/${id}` : '/api/news';
       const method = id ? 'PUT' : 'POST';
@@ -226,6 +239,17 @@ export function NewsForm({
         <label className="block text-sm font-medium text-gray-700 mb-1">ویدیوها (اختیاری)</label>
         <MultiVideoUploader values={videoUrls} onChange={setVideoUrls} />
       </div>
+      {videoUrls.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            تصویر بندانگشتی ویدیو / پوستر (اختیاری)
+          </label>
+          <p className="text-xs text-gray-500 mb-2">
+            این تصویر به‌عنوان پوستر ویدیو پیش از پخش نمایش داده می‌شود.
+          </p>
+          <ImageUploader value={videoThumbnailUrl} onChange={setVideoThumbnailUrl} />
+        </div>
+      )}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">دسته‌بندی‌ها *</label>
         <div className="flex flex-wrap gap-2">
@@ -291,6 +315,16 @@ export function NewsForm({
               onChange={(e) => setFeatured(e.target.checked)}
             />
             <span className="text-sm">نمایش در اسلایدر صفحه اول (خبر مهم)</span>
+          </label>
+        )}
+        {!isReporter && (
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isBreaking}
+              onChange={(e) => setIsBreaking(e.target.checked)}
+            />
+            <span className="text-sm">خبر فوری (نمایش در بنر بالای سایت)</span>
           </label>
         )}
       </div>

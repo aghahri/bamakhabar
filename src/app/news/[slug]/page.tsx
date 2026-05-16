@@ -149,7 +149,13 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
               preload="metadata"
               playsInline
               className="w-full h-full object-contain"
-              poster={firstImage ? resolveImageSrc(firstImage) : undefined}
+              poster={
+                news.videoThumbnailUrl
+                  ? resolveImageSrc(news.videoThumbnailUrl)
+                  : firstImage
+                    ? resolveImageSrc(firstImage)
+                    : undefined
+              }
             >
               مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
             </video>

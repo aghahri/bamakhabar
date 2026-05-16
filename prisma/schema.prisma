@@ -117,6 +117,7 @@ model News {
   body           String
   imageUrl       String?
   videoUrl       String?
+  videoThumbnailUrl String?    // پوستر/تصویر بندانگشتی ویدیو (اختیاری)
   imageUrls     String[]     @default([])
   videoUrls     String[]     @default([])
   categories     Category[]   @relation("NewsCategories")
@@ -126,6 +127,7 @@ model News {
   createdBy      User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
   published      Boolean      @default(false)
   featured       Boolean      @default(false)
+  isBreaking     Boolean      @default(false)   // خبر فوری: نمایش در بنر بالای سایت
   viewCount      Int          @default(0)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
