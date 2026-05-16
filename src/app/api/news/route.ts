@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession, requireAdmin, requireEditorOrAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { normalizeStoredImageUrl } from '@/lib/images';
 
 function slugify(text: string): string {
   return text
@@ -73,7 +74,10 @@ export async function POST(req: NextRequest) {
       featured = false;
     }
 
-    const imageUrlsArr: string[] = Array.isArray(imageUrls) ? imageUrls : imageUrl ? [imageUrl] : [];
+    const rawImageUrls: string[] = Array.isArray(imageUrls) ? imageUrls : imageUrl ? [imageUrl] : [];
+    const imageUrlsArr: string[] = rawImageUrls
+      .map((u) => normalizeStoredImageUrl(u))
+      .filter((u): u is string => Boolean(u));
     const videoUrlsArr: string[] = Array.isArray(videoUrls) ? videoUrls : videoUrl ? [videoUrl] : [];
 
     let slug = slugify(title);

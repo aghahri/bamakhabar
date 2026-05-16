@@ -92,7 +92,7 @@ async function main() {
 ایشان با ردای شهادت و زبان روزه در ماه مبارک رمضان به مولایش امیرالمؤمنین اقتدا کرد؛ ما نیز عهد می‌بندیم علمی را که ایشان ۳۷ سال مقتدرانه و حکیمانه در گذر از گردنه‌های دشوار در دست داشت، همواره برافراشته نگه داریم.`,
       categoryIds: [catFarhangi!.id],
       neighborhoodId: null as string | null,
-      imageUrl: '/agha-image.png',
+      imageUrl: '/images/bamakhabar-news-placeholder.png',
       published: true,
       featured: true,
     },

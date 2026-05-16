@@ -13,7 +13,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:import-mahallat": "tsx scripts/import-mahallat.ts",
     "db:seed-sample": "tsx prisma/seed-sample-neighborhoods.ts",
-    "db:fix-sample-images": "tsx prisma/update-sample-news-images.ts"
+    "db:fix-sample-images": "tsx prisma/update-sample-news-images.ts",
+    "db:cleanup-agha-image": "tsx scripts/cleanup-agha-image.ts"
   },
   "dependencies": {
     "@fontsource-variable/vazirmatn": "^5.1.0",

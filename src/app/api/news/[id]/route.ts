@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireEditorOrAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { normalizeStoredImageUrl } from '@/lib/images';
 
 export async function GET(
   _req: NextRequest,
@@ -76,7 +77,10 @@ export async function PUT(
     featured = false;
   }
 
-  const imageUrlsArr: string[] = Array.isArray(imageUrls) ? imageUrls : imageUrl ? [imageUrl] : [];
+  const rawImageUrls: string[] = Array.isArray(imageUrls) ? imageUrls : imageUrl ? [imageUrl] : [];
+  const imageUrlsArr: string[] = rawImageUrls
+    .map((u) => normalizeStoredImageUrl(u))
+    .filter((u): u is string => Boolean(u));
   const videoUrlsArr: string[] = Array.isArray(videoUrls) ? videoUrls : videoUrl ? [videoUrl] : [];
 
   const sanitizedBody = sanitizeHtml(bodyText);
