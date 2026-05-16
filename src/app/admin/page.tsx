@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { formatPersianNumber } from '@/lib/persian';
 import { DeleteNewsButton } from '@/components/DeleteNewsButton';
 
 export default async function AdminPage() {
@@ -40,6 +41,7 @@ export default async function AdminPage() {
               ))}
               {n.neighborhood && <span className="text-xs text-gray-500">· {n.neighborhood.name}</span>}
               <span className="text-xs text-gray-400">· {new Date(n.createdAt).toLocaleDateString('fa-IR')}</span>
+              <span className="text-xs text-gray-400">· بازدید: {formatPersianNumber(n.viewCount)}</span>
             </div>
             <div className="flex items-center gap-2 mt-2">
               <span
@@ -78,6 +80,7 @@ export default async function AdminPage() {
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">محله</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">بازدید</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
             </tr>
           </thead>
@@ -111,6 +114,9 @@ export default async function AdminPage() {
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-500">
                   {new Date(n.createdAt).toLocaleDateString('fa-IR')}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-600 tabular-nums">
+                  {formatPersianNumber(n.viewCount)}
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <Link
