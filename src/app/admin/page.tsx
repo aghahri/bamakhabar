@@ -71,8 +71,8 @@ export default async function AdminPage() {
       </div>
 
       {/* Desktop: table layout */}
-      <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
+        <table className="w-full min-w-[920px] divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">عنوان</th>
@@ -81,7 +81,7 @@ export default async function AdminPage() {
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">بازدید</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">عملیات</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -118,7 +118,7 @@ export default async function AdminPage() {
                 <td className="px-4 py-3 text-sm text-gray-600 tabular-nums">
                   {formatPersianNumber(n.viewCount)}
                 </td>
-                <td className="px-4 py-3 text-sm">
+                <td className="px-4 py-3 text-sm whitespace-nowrap">
                   <Link
                     href={`/admin/news/${n.id}`}
                     className="text-[var(--bama-primary)] hover:underline"
