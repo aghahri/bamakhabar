@@ -95,8 +95,8 @@ export default async function HomePage() {
 
       <div className="flex flex-col lg:flex-row gap-6">
         <aside className="w-full lg:w-80 flex-shrink-0 lg:order-1 order-2 space-y-6">
-          <NeighborhoodRanking ranking={ranking} sidebar />
           <TrendingBox />
+          <NeighborhoodRanking ranking={ranking} sidebar />
         </aside>
         <section className="flex-1 min-w-0 lg:order-2 order-1">
           <h2 className="text-lg font-bold text-gray-800 border-r-4 border-[var(--bama-primary)] pr-3 mb-4">
