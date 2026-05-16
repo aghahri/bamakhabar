@@ -4,10 +4,38 @@ import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { formatPersianNumber } from '@/lib/persian';
 import { DeleteNewsButton } from '@/components/DeleteNewsButton';
+import { AdminAnalytics } from '@/components/AdminAnalytics';
 
-export default async function AdminPage() {
+export const dynamic = 'force-dynamic';
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; to?: string }>;
+}) {
   const session = await getSession();
   if (!session) redirect('/admin/login');
+
+  const sp = await searchParams;
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+    now.getDate()
+  ).padStart(2, '0')}`;
+  const fromStr = sp.from && DATE_RE.test(sp.from) ? sp.from : todayStr;
+  const toStr = sp.to && DATE_RE.test(sp.to) ? sp.to : todayStr;
+  let from = new Date(`${fromStr}T00:00:00.000`);
+  let to = new Date(`${toStr}T23:59:59.999`);
+  if (from > to) {
+    const tmp = from;
+    from = new Date(`${toStr}T00:00:00.000`);
+    to = new Date(`${tmp.toISOString().slice(0, 10)}T23:59:59.999`);
+  }
+  const scopeNeighborhoodId =
+    session.type === 'user' && session.role === 'REPORTER' && session.neighborhoodId
+      ? session.neighborhoodId
+      : null;
 
   const where =
     session.type === 'user' && session.role === 'REPORTER' && session.neighborhoodId
@@ -22,6 +50,13 @@ export default async function AdminPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">مدیریت اخبار</h1>
+      <AdminAnalytics
+        from={from}
+        to={to}
+        fromStr={fromStr}
+        toStr={toStr}
+        scopeNeighborhoodId={scopeNeighborhoodId}
+      />
       <Link
         href="/admin/news/new"
         className="btn-primary inline-block mb-6"
