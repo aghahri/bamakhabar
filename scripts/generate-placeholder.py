@@ -11,20 +11,26 @@ items that have no picture. The design is intentionally minimal:
   * a short red rule as a media/news accent
   * the Latin wordmark "BAMA KHABAR" beneath the rule
 
+Persian text is rendered with proper complex-text layout: Pillow's RAQM
+layout engine (HarfBuzz shaping + FriBiDi bidi). The raw Unicode strings are
+passed in logical order with direction='rtl' so letters join cursively and
+read right-to-left exactly like native Persian typography. No manual
+reshaping / bidi reordering is done (that path breaks cursive joins).
+
 No people, no political imagery, no photographs. Output is byte-stable for a
-given Pillow version because every coordinate, color and the embedded font
-are fixed (font vendored at scripts/assets/Vazirmatn-Bold.ttf, SIL OFL 1.1).
+given Pillow/HarfBuzz version because every coordinate, color and the
+embedded font are fixed (font vendored at scripts/assets/Vazirmatn-Bold.ttf,
+SIL OFL 1.1).
 
 Dev dependencies (not part of the app runtime):
-    pip install Pillow arabic-reshaper python-bidi
+    pip install Pillow            # official wheel bundles raqm/harfbuzz/fribidi
 
 Run:  python scripts/generate-placeholder.py
 """
 import os
+import sys
 
-from PIL import Image, ImageDraw, ImageFont
-import arabic_reshaper
-from bidi.algorithm import get_display
+from PIL import Image, ImageDraw, ImageFont, features
 
 W, H = 1200, 675
 BG = (255, 255, 255)            # clean white
@@ -38,13 +44,14 @@ FONT_PATH = os.path.join(HERE, 'assets', 'Vazirmatn-Bold.ttf')
 OUT_PATH = os.path.join(os.path.dirname(HERE), 'public', 'images',
                         'bamakhabar-news-placeholder.png')
 
-
-def fa(text: str) -> str:
-    """Shape + bidi-order Persian text for correct rendering with Pillow."""
-    return get_display(arabic_reshaper.reshape(text))
+RAQM = ImageFont.Layout.RAQM
 
 
 def main() -> None:
+    if not features.check('raqm'):
+        sys.exit('Pillow is missing RAQM (HarfBuzz/FriBiDi) support; '
+                 'install a Pillow build with raqm for correct Persian shaping.')
+
     img = Image.new('RGB', (W, H), BG)
     draw = ImageDraw.Draw(img)
 
@@ -57,15 +64,16 @@ def main() -> None:
     draw.rectangle([24, 24, W - 25, H - 25], outline=FRAME, width=2)
 
     cx = W // 2
-    word_font = ImageFont.truetype(FONT_PATH, 156)
-    latin_font = ImageFont.truetype(FONT_PATH, 46)
+    word_font = ImageFont.truetype(FONT_PATH, 156, layout_engine=RAQM)
+    latin_font = ImageFont.truetype(FONT_PATH, 46, layout_engine=RAQM)
 
-    line1 = fa('باما')
-    line2 = fa('خبر')
+    # Raw logical-order Persian; RAQM does shaping + bidi (direction='rtl').
+    line1 = 'باما'
+    line2 = 'خبر'
+    tb = dict(direction='rtl', language='fa')
 
-    # Stack the two Persian words, optically centered as a single block.
-    b1 = draw.textbbox((0, 0), line1, font=word_font)
-    b2 = draw.textbbox((0, 0), line2, font=word_font)
+    b1 = draw.textbbox((0, 0), line1, font=word_font, **tb)
+    b2 = draw.textbbox((0, 0), line2, font=word_font, **tb)
     h1 = b1[3] - b1[1]
     h2 = b2[3] - b2[1]
     gap = 32
@@ -74,14 +82,16 @@ def main() -> None:
 
     y1 = top - b1[1]
     y2 = top + h1 + gap - b2[1]
-    draw.text((cx, y1), line1, font=word_font, fill=BRAND_DARK, anchor='ma')
-    draw.text((cx, y2), line2, font=word_font, fill=BRAND_RED, anchor='ma')
+    draw.text((cx, y1), line1, font=word_font, fill=BRAND_DARK,
+              anchor='ma', **tb)
+    draw.text((cx, y2), line2, font=word_font, fill=BRAND_RED,
+              anchor='ma', **tb)
 
     # Short red accent rule beneath the wordmark.
     rule_y = top + block_h + 44
     draw.rectangle([cx - 90, rule_y, cx + 90, rule_y + 6], fill=BRAND_RED)
 
-    # Latin wordmark "BAMA KHABAR" with deterministic letter spacing.
+    # Latin wordmark "BAMA KHABAR" with deterministic letter spacing (LTR).
     latin = 'BAMA KHABAR'
     tracking = 10
     widths = [draw.textlength(ch, font=latin_font) for ch in latin]
