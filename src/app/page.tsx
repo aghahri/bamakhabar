@@ -1,14 +1,17 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { NewsCard } from '@/components/NewsCard';
 import { FeaturedSlider } from '@/components/FeaturedSlider';
 import { NeighborhoodRanking } from '@/components/NeighborhoodRanking';
+import { HomeNewsList, type ListNewsItem } from '@/components/HomeNewsList';
+import { TrendingBox } from '@/components/TrendingBox';
 import { getNeighborhoodRanking } from '@/lib/locations';
 
 export const revalidate = 60;
 
+const PAGE_SIZE = 12;
+
 async function getHomeData() {
-  const [featuredList, latest, ranking] = await Promise.all([
+  const [featuredList, listRows, ranking] = await Promise.all([
     prisma.news.findMany({
       where: { published: true, featured: true },
       orderBy: { createdAt: 'desc' },
@@ -18,31 +21,43 @@ async function getHomeData() {
     prisma.news.findMany({
       where: { published: true },
       orderBy: { createdAt: 'desc' },
-      take: 16,
+      take: PAGE_SIZE + 1, // یکی بیشتر برای تشخیص وجود اخبار بیشتر
       include: { categories: true, neighborhood: true },
     }),
     getNeighborhoodRanking(),
   ]);
-  const featuredIds = new Set(featuredList.map((n) => n.id));
-  const rest = latest.filter((n) => !featuredIds.has(n.id)).slice(0, 12);
-  return { featuredList, rest, ranking };
+  const listHasMore = listRows.length > PAGE_SIZE;
+  const listItems: ListNewsItem[] = listRows.slice(0, PAGE_SIZE).map((n) => ({
+    id: n.id,
+    title: n.title,
+    slug: n.slug,
+    summary: n.summary,
+    imageUrl: n.imageUrl,
+    categoryNames: n.categories.map((c) => c.name),
+    createdAt: n.createdAt.toISOString(),
+    regionLabel: n.neighborhood ? `${n.neighborhood.name}، ${n.neighborhood.city ?? ''}` : null,
+  }));
+  return { featuredList, listItems, listHasMore, ranking };
 }
 
 export default async function HomePage() {
   let featuredList: Awaited<ReturnType<typeof getHomeData>>['featuredList'];
-  let rest: Awaited<ReturnType<typeof getHomeData>>['rest'];
+  let listItems: ListNewsItem[];
+  let listHasMore: boolean;
   let ranking: Awaited<ReturnType<typeof getHomeData>>['ranking'];
   let dbError = false;
 
   try {
     const data = await getHomeData();
     featuredList = data.featuredList;
-    rest = data.rest;
+    listItems = data.listItems;
+    listHasMore = data.listHasMore;
     ranking = data.ranking;
   } catch (err) {
     console.error('HomePage DB error:', err);
     featuredList = [];
-    rest = [];
+    listItems = [];
+    listHasMore = false;
     ranking = { red: [], yellow: [], green: [] };
     dbError = true;
   }
@@ -79,30 +94,19 @@ export default async function HomePage() {
       </section>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        <aside className="w-full lg:w-80 flex-shrink-0 lg:order-1 order-2">
+        <aside className="w-full lg:w-80 flex-shrink-0 lg:order-1 order-2 space-y-6">
           <NeighborhoodRanking ranking={ranking} sidebar />
+          <TrendingBox />
         </aside>
         <section className="flex-1 min-w-0 lg:order-2 order-1">
           <h2 className="text-lg font-bold text-gray-800 border-r-4 border-[var(--bama-primary)] pr-3 mb-4">
             آخرین اخبار
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {rest.map((news) => (
-              <NewsCard
-                key={news.id}
-                title={news.title}
-                slug={news.slug}
-                summary={news.summary}
-                imageUrl={news.imageUrl}
-                categoryNames={news.categories.map((c) => c.name)}
-                createdAt={news.createdAt}
-                regionLabel={news.neighborhood ? `${news.neighborhood.name}، ${news.neighborhood.city ?? ''}` : null}
-              />
-            ))}
-          </div>
-          {rest.length === 0 && featuredList.length === 0 && (
-            <p className="text-center text-gray-500 py-8">خبری منتشر نشده است.</p>
-          )}
+          <HomeNewsList
+            initialItems={listItems}
+            initialHasMore={listHasMore}
+            initialNextSkip={listItems.length}
+          />
 
           <section className="mt-10">
             <h2 className="text-lg font-bold text-gray-800 border-r-4 border-[var(--bama-primary)] pr-3 mb-4">
