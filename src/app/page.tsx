@@ -4,6 +4,8 @@ import { FeaturedSlider } from '@/components/FeaturedSlider';
 import { NeighborhoodRanking } from '@/components/NeighborhoodRanking';
 import { HomeNewsList, type ListNewsItem } from '@/components/HomeNewsList';
 import { TrendingBox } from '@/components/TrendingBox';
+import { ShortsRail } from '@/components/ShortsRail';
+import { TopReportersBox } from '@/components/TopReportersBox';
 import { getNeighborhoodRanking } from '@/lib/locations';
 
 export const revalidate = 60;
@@ -93,9 +95,12 @@ export default async function HomePage() {
         )}
       </section>
 
+      <ShortsRail />
+
       <div className="flex flex-col lg:flex-row gap-6">
         <aside className="w-full lg:w-80 flex-shrink-0 lg:order-1 order-2 space-y-6">
           <TrendingBox />
+          <TopReportersBox />
           <NeighborhoodRanking ranking={ranking} sidebar />
         </aside>
         <section className="flex-1 min-w-0 lg:order-2 order-1">

@@ -36,6 +36,7 @@ interface NewsFormProps {
   defaultPublished?: boolean;
   defaultFeatured?: boolean;
   defaultIsBreaking?: boolean;
+  defaultIsShort?: boolean;
   isReporter?: boolean;
   reporterNeighborhoodId?: string | null;
 }
@@ -55,6 +56,7 @@ export function NewsForm({
   defaultPublished = false,
   defaultFeatured = false,
   defaultIsBreaking = false,
+  defaultIsShort = false,
   isReporter = false,
   reporterNeighborhoodId = null,
 }: NewsFormProps) {
@@ -77,6 +79,7 @@ export function NewsForm({
   const [published, setPublished] = useState(defaultPublished);
   const [featured, setFeatured] = useState(isReporter ? false : defaultFeatured);
   const [isBreaking, setIsBreaking] = useState(isReporter ? false : defaultIsBreaking);
+  const [isShort, setIsShort] = useState(defaultIsShort);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -135,6 +138,7 @@ export function NewsForm({
     setPublished(defaultPublished);
     setFeatured(isReporter ? false : defaultFeatured);
     setIsBreaking(isReporter ? false : defaultIsBreaking);
+    setIsShort(defaultIsShort);
   }, [
     id,
     defaultTitle,
@@ -150,6 +154,7 @@ export function NewsForm({
     defaultPublished,
     defaultFeatured,
     defaultIsBreaking,
+    defaultIsShort,
     isReporter,
     reporterNeighborhoodId,
   ]);
@@ -181,6 +186,7 @@ export function NewsForm({
         published,
         featured,
         isBreaking,
+        isShort: videoUrls.length ? isShort : false,
       };
       const url = id ? `/api/news/${id}` : '/api/news';
       const method = id ? 'PUT' : 'POST';
@@ -248,6 +254,14 @@ export function NewsForm({
             این تصویر به‌عنوان پوستر ویدیو پیش از پخش نمایش داده می‌شود.
           </p>
           <ImageUploader value={videoThumbnailUrl} onChange={setVideoThumbnailUrl} />
+          <label className="flex items-center gap-2 cursor-pointer mt-3">
+            <input
+              type="checkbox"
+              checked={isShort}
+              onChange={(e) => setIsShort(e.target.checked)}
+            />
+            <span className="text-sm">نمایش در باما شورت</span>
+          </label>
         </div>
       )}
       <div>

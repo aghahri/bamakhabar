@@ -134,6 +134,7 @@ model News {
   published      Boolean      @default(false)
   featured       Boolean      @default(false)
   isBreaking     Boolean      @default(false)   // خبر فوری: نمایش در بنر بالای سایت
+  isShort        Boolean      @default(false)   // نمایش در باما شورت (فقط اخبار دارای ویدیو)
   // گردش‌کار تایید سردبیری: پیش‌فرض APPROVED تا رفتار قبلی/اخبار موجود تغییر نکند؛
   // اخبار ساخته‌شده توسط خبرنگار به‌صورت PENDING ثبت می‌شوند.
   reviewStatus   ReviewStatus @default(APPROVED)

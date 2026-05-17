@@ -44,6 +44,7 @@ export default async function EditNewsPage({
         defaultPublished={news.published}
         defaultFeatured={news.featured}
         defaultIsBreaking={news.isBreaking}
+        defaultIsShort={news.isShort}
         isReporter={isReporter}
         reporterNeighborhoodId={reporterNeighborhoodId}
       />

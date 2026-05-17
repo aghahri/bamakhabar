@@ -50,6 +50,13 @@ export async function AdminAnalytics({
     topNews: { id: string; title: string; slug: string; viewCount: number }[];
     hoods: { id: string; name: string; city: string | null; views: number; count: number }[];
     reporters: { id: string; name: string; count: number; views: number }[];
+    topReporters: {
+      id: string;
+      name: string;
+      neighborhood: string | null;
+      count: number;
+      views: number;
+    }[];
   } | null = null;
 
   try {
@@ -62,6 +69,7 @@ export async function AdminAnalytics({
       topNews,
       hoodGroups,
       reporterGroups,
+      approvedReporterGroups,
     ] = await Promise.all([
       prisma.news.count({ where: baseWhere }),
       prisma.news.aggregate({ where: baseWhere, _sum: { viewCount: true } }),
@@ -88,6 +96,17 @@ export async function AdminAnalytics({
       prisma.news.groupBy({
         by: ['createdById'],
         where: { ...baseWhere, createdById: { not: null } },
+        _sum: { viewCount: true },
+        _count: true,
+      }),
+      prisma.news.groupBy({
+        by: ['createdById'],
+        where: {
+          ...baseWhere,
+          createdById: { not: null },
+          published: true,
+          reviewStatus: 'APPROVED',
+        },
         _sum: { viewCount: true },
         _count: true,
       }),
@@ -140,6 +159,38 @@ export async function AdminAnalytics({
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
 
+    const topApproved = [...approvedReporterGroups]
+      .sort(
+        (a, b) =>
+          (b._sum.viewCount ?? 0) - (a._sum.viewCount ?? 0) || b._count - a._count
+      )
+      .slice(0, 5);
+    const topMeta = topApproved.length
+      ? await prisma.user.findMany({
+          where: { id: { in: topApproved.map((g) => g.createdById as string) } },
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            neighborhood: { select: { name: true } },
+          },
+        })
+      : [];
+    const topMap = new Map(topMeta.map((u) => [u.id, u]));
+    const topReporters = topApproved
+      .map((g) => {
+        const meta = topMap.get(g.createdById as string);
+        if (!meta) return null;
+        return {
+          id: meta.id,
+          name: meta.name || meta.username,
+          neighborhood: meta.neighborhood?.name ?? null,
+          count: g._count,
+          views: g._sum.viewCount ?? 0,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+
     data = {
       newsCount,
       totalViews: viewsAgg._sum.viewCount ?? 0,
@@ -149,6 +200,7 @@ export async function AdminAnalytics({
       topNews,
       hoods,
       reporters,
+      topReporters,
     };
   } catch (err) {
     console.error('AdminAnalytics DB error:', err);
@@ -276,6 +328,30 @@ export async function AdminAnalytics({
                     {toPersianDigits(i + 1)}
                   </span>
                   <span className="flex-1 min-w-0 text-gray-700 line-clamp-2">{r.name}</span>
+                  <span className="flex-shrink-0 text-xs text-gray-400 tabular-nums">
+                    {formatPersianNumber(r.count)} خبر · {formatPersianNumber(r.views)} بازدید
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        {data.topReporters.length > 0 && (
+          <div className="bg-white rounded-lg shadow p-4">
+            <h3 className="text-sm font-bold text-gray-800 mb-3">خبرنگاران برتر محله‌ها</h3>
+            <ol className="space-y-2">
+              {data.topReporters.map((r, i) => (
+                <li key={r.id} className="flex items-start gap-2 text-sm">
+                  <span className="flex-shrink-0 w-6 text-center text-sm">
+                    {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : toPersianDigits(i + 1)}
+                  </span>
+                  <span className="flex-1 min-w-0 text-gray-700 line-clamp-2">
+                    {r.name}
+                    {r.neighborhood ? (
+                      <span className="text-gray-400"> · {r.neighborhood}</span>
+                    ) : null}
+                  </span>
                   <span className="flex-shrink-0 text-xs text-gray-400 tabular-nums">
                     {formatPersianNumber(r.count)} خبر · {formatPersianNumber(r.views)} بازدید
                   </span>

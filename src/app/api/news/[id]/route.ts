@@ -73,6 +73,7 @@ export async function PUT(
     published,
     featured,
     isBreaking,
+    isShort,
   } = body;
   if (!title || !bodyText || !categoryIds || categoryIds.length === 0) {
     return NextResponse.json(
@@ -131,6 +132,7 @@ export async function PUT(
       ...reporterResubmit,
       featured: Boolean(featured),
       isBreaking: Boolean(isBreaking),
+      isShort: videoUrlsArr.length > 0 ? Boolean(isShort) : false,
     },
     include: { categories: true },
   });
