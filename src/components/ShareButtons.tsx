@@ -61,16 +61,8 @@ export function ShareButtons({ title, url }: ShareButtonsProps) {
   const enc = encodeURIComponent;
   const telegramHref = `https://t.me/share/url?url=${enc(shareUrl)}&text=${enc(title)}`;
   const whatsappHref = `https://wa.me/?text=${enc(`${title} ${shareUrl}`)}`;
-  const tootnetHref = `https://app.tootapp.net/share?url=${enc(shareUrl)}&title=${enc(title)}`;
-
-  function shareTootnet() {
-    try {
-      const w = window.open(tootnetHref, '_blank', 'noopener,noreferrer');
-      if (!w) copyLink('tootnet');
-    } catch {
-      copyLink('tootnet');
-    }
-  }
+  // TODO: switch to https://app.tootapp.net/share when toot-frontend implements /share.
+  // فعلاً مسیر /share در توت‌نت وجود ندارد و باعث ۴۰۴ می‌شود؛ تا آن زمان کپی لینک.
 
   return (
     <div dir="rtl" className="mt-8 pt-6 border-t border-gray-100">
@@ -94,7 +86,7 @@ export function ShareButtons({ title, url }: ShareButtonsProps) {
         <button type="button" onClick={() => copyLink('bale')} className={BTN}>
           {copied === 'bale' ? 'لینک کپی شد ✓' : 'بله'}
         </button>
-        <button type="button" onClick={shareTootnet} className={BTN}>
+        <button type="button" onClick={() => copyLink('tootnet')} className={BTN}>
           {copied === 'tootnet' ? 'لینک کپی شد ✓' : 'توت‌نت'}
         </button>
         <button type="button" onClick={() => copyLink('copy')} className={BTN}>
