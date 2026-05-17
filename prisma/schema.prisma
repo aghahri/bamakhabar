@@ -21,6 +21,12 @@ enum UserRole {
   REPORTER
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  NEEDS_REVISION
+}
+
 model User {
   id             String       @id @default(cuid())
   username       String       @unique
@@ -128,6 +134,11 @@ model News {
   published      Boolean      @default(false)
   featured       Boolean      @default(false)
   isBreaking     Boolean      @default(false)   // خبر فوری: نمایش در بنر بالای سایت
+  // گردش‌کار تایید سردبیری: پیش‌فرض APPROVED تا رفتار قبلی/اخبار موجود تغییر نکند؛
+  // اخبار ساخته‌شده توسط خبرنگار به‌صورت PENDING ثبت می‌شوند.
+  reviewStatus   ReviewStatus @default(APPROVED)
+  reviewedAt     DateTime?
+  reviewedById   String?
   viewCount      Int          @default(0)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt

@@ -76,6 +76,10 @@ export async function POST(req: NextRequest) {
       featured = false;
       isBreaking = false;
     }
+    // گردش‌کار تایید: اخبار خبرنگار در انتظار بازبینی و غیرمنتشر؛
+    // ادمین/ادیتور مثل قبل مستقیماً منتشر می‌کنند.
+    const reviewStatus = isReporter ? 'PENDING' : 'APPROVED';
+    const effectivePublished = isReporter ? false : Boolean(published);
 
     const rawImageUrls: string[] = Array.isArray(imageUrls) ? imageUrls : imageUrl ? [imageUrl] : [];
     const imageUrlsArr: string[] = rawImageUrls
@@ -107,7 +111,8 @@ export async function POST(req: NextRequest) {
         },
         neighborhoodId: neighborhoodId || null,
         createdById: session.type === 'user' ? session.id : null,
-        published: Boolean(published),
+        published: effectivePublished,
+        reviewStatus,
         featured: Boolean(featured),
         isBreaking: Boolean(isBreaking),
       },

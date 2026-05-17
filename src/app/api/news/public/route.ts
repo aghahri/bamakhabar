@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const rows = await prisma.news.findMany({
-      where: { published: true },
+      where: { published: true, reviewStatus: 'APPROVED' },
       orderBy: { createdAt: 'desc' },
       skip,
       take: take + 1, // یکی بیشتر برای تشخیص ادامه‌داشتن

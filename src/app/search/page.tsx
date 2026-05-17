@@ -35,6 +35,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
   const where: Prisma.NewsWhereInput = {
     published: true,
+    reviewStatus: 'APPROVED',
   };
   if (q?.trim()) {
     const term = q.trim();

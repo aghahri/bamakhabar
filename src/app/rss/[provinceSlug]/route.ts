@@ -26,6 +26,7 @@ export async function GET(
   const news = await prisma.news.findMany({
     where: {
       published: true,
+      reviewStatus: 'APPROVED',
       neighborhood: { provinceSlug: province.slug },
     },
     orderBy: { createdAt: 'desc' },

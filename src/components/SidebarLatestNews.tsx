@@ -4,7 +4,7 @@ import { toPersianDigits } from '@/lib/persian';
 
 export async function SidebarLatestNews() {
   const news = await prisma.news.findMany({
-    where: { published: true },
+    where: { published: true, reviewStatus: 'APPROVED' },
     orderBy: { createdAt: 'desc' },
     take: 8,
     include: { categories: true },

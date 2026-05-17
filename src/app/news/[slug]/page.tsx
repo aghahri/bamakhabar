@@ -21,14 +21,14 @@ async function findNewsBySlug(slug: string) {
     decoded = slug;
   }
   let news = await prisma.news.findUnique({
-    where: { slug: decoded, published: true },
+    where: { slug: decoded, published: true, reviewStatus: 'APPROVED' },
     include: { categories: true, neighborhood: true },
   });
   if (news) return news;
   const normalized = normalizeSlug(decoded);
   if (normalized !== decoded) {
     news = await prisma.news.findFirst({
-      where: { slug: normalized, published: true },
+      where: { slug: normalized, published: true, reviewStatus: 'APPROVED' },
       include: { categories: true, neighborhood: true },
     });
   }

@@ -46,6 +46,18 @@ export async function PUT(
   if (isReporter && existing.neighborhoodId !== reporterNeighborhoodId) {
     return NextResponse.json({ error: 'فقط اخبار محله خود را می‌توانید ویرایش کنید' }, { status: 403 });
   }
+  if (isReporter && existing.createdById !== session.id) {
+    return NextResponse.json(
+      { error: 'فقط اخبار ثبت‌شده توسط خودتان را می‌توانید ویرایش کنید' },
+      { status: 403 }
+    );
+  }
+  if (isReporter && existing.reviewStatus === 'APPROVED') {
+    return NextResponse.json(
+      { error: 'خبر تاییدشده قابل ویرایش توسط خبرنگار نیست' },
+      { status: 403 }
+    );
+  }
   const body = await req.json();
   let {
     title,
@@ -91,6 +103,16 @@ export async function PUT(
       : null;
 
   const sanitizedBody = sanitizeHtml(bodyText);
+  // ویرایش توسط خبرنگار = ارسال مجدد برای بازبینی: غیرمنتشر و در انتظار تایید.
+  // ادمین/ادیتور وضعیت بازبینی را تغییر نمی‌دهند (از مسیر /review انجام می‌شود).
+  const reporterResubmit = isReporter
+    ? {
+        published: false,
+        reviewStatus: 'PENDING' as const,
+        reviewedAt: null,
+        reviewedById: null,
+      }
+    : { published: Boolean(published) };
   const news = await prisma.news.update({
     where: { id },
     data: {
@@ -106,7 +128,7 @@ export async function PUT(
         set: (categoryIds as string[]).map((cid: string) => ({ id: cid })),
       },
       neighborhoodId: neighborhoodId || null,
-      published: Boolean(published),
+      ...reporterResubmit,
       featured: Boolean(featured),
       isBreaking: Boolean(isBreaking),
     },

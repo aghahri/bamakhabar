@@ -6,7 +6,7 @@ export async function TrendingBox() {
   let items: { id: string; slug: string; title: string; viewCount: number }[] = [];
   try {
     items = await prisma.news.findMany({
-      where: { published: true },
+      where: { published: true, reviewStatus: 'APPROVED' },
       orderBy: { viewCount: 'desc' },
       take: 5,
       select: { id: true, slug: true, title: true, viewCount: true },

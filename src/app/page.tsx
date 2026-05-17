@@ -13,13 +13,13 @@ const PAGE_SIZE = 12;
 async function getHomeData() {
   const [featuredList, listRows, ranking] = await Promise.all([
     prisma.news.findMany({
-      where: { published: true, featured: true },
+      where: { published: true, featured: true, reviewStatus: 'APPROVED' },
       orderBy: { createdAt: 'desc' },
       take: 5,
       include: { categories: true, neighborhood: true },
     }),
     prisma.news.findMany({
-      where: { published: true },
+      where: { published: true, reviewStatus: 'APPROVED' },
       orderBy: { createdAt: 'desc' },
       take: PAGE_SIZE + 1, // یکی بیشتر برای تشخیص وجود اخبار بیشتر
       include: { categories: true, neighborhood: true },

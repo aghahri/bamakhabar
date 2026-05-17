@@ -5,6 +5,15 @@ import { prisma } from '@/lib/prisma';
 import { formatPersianNumber } from '@/lib/persian';
 import { DeleteNewsButton } from '@/components/DeleteNewsButton';
 import { AdminAnalytics } from '@/components/AdminAnalytics';
+import { ReviewActions } from '@/components/ReviewActions';
+
+type ReviewStatus = 'PENDING' | 'APPROVED' | 'NEEDS_REVISION';
+
+const REVIEW_BADGE: Record<ReviewStatus, { text: string; cls: string }> = {
+  PENDING: { text: 'در انتظار تایید', cls: 'bg-amber-100 text-amber-800' },
+  APPROVED: { text: 'تایید شده', cls: 'bg-green-100 text-green-800' },
+  NEEDS_REVISION: { text: 'نیاز به اصلاح', cls: 'bg-red-100 text-red-800' },
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +55,10 @@ export default async function AdminPage({
     orderBy: { createdAt: 'desc' },
     include: { categories: true, neighborhood: true },
   });
+
+  const canReview =
+    session.type === 'admin' ||
+    (session.type === 'user' && (session.role === 'ADMIN' || session.role === 'EDITOR'));
 
   return (
     <div>
@@ -91,14 +104,22 @@ export default async function AdminPage({
                   در اسلایدر
                 </span>
               )}
+              <span
+                className={`px-2 py-0.5 text-xs rounded ${REVIEW_BADGE[n.reviewStatus as ReviewStatus].cls}`}
+              >
+                {REVIEW_BADGE[n.reviewStatus as ReviewStatus].text}
+              </span>
             </div>
-            <div className="flex gap-4 mt-3 pt-3 border-t border-gray-100 text-sm">
+            <div className="flex flex-wrap gap-4 mt-3 pt-3 border-t border-gray-100 text-sm">
               <Link href={`/admin/news/${n.id}`} className="text-[var(--bama-primary)] hover:underline">
                 ویرایش
               </Link>
               <Link href={`/news/${n.slug}`} target="_blank" className="text-blue-600 hover:underline">
                 مشاهده
               </Link>
+              {canReview && (
+                <ReviewActions id={n.id} status={n.reviewStatus as ReviewStatus} />
+              )}
               <DeleteNewsButton id={n.id} title={n.title} />
             </div>
           </div>
@@ -114,6 +135,7 @@ export default async function AdminPage({
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">دسته‌ها</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">محله</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">بازبینی</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">بازدید</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">عملیات</th>
@@ -147,6 +169,13 @@ export default async function AdminPage({
                     </span>
                   )}
                 </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span
+                    className={`px-2 py-1 text-xs rounded ${REVIEW_BADGE[n.reviewStatus as ReviewStatus].cls}`}
+                  >
+                    {REVIEW_BADGE[n.reviewStatus as ReviewStatus].text}
+                  </span>
+                </td>
                 <td className="px-4 py-3 text-sm text-gray-500">
                   {new Date(n.createdAt).toLocaleDateString('fa-IR')}
                 </td>
@@ -169,6 +198,12 @@ export default async function AdminPage({
                     مشاهده
                   </Link>
                   {' · '}
+                  {canReview && (
+                    <>
+                      <ReviewActions id={n.id} status={n.reviewStatus as ReviewStatus} />
+                      {' · '}
+                    </>
+                  )}
                   <DeleteNewsButton id={n.id} title={n.title} />
                 </td>
               </tr>

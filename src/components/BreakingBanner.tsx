@@ -5,7 +5,7 @@ export async function BreakingBanner() {
   let items: BreakingItem[] = [];
   try {
     items = await prisma.news.findMany({
-      where: { published: true, isBreaking: true },
+      where: { published: true, isBreaking: true, reviewStatus: 'APPROVED' },
       orderBy: { createdAt: 'desc' },
       take: 10,
       select: { id: true, slug: true, title: true },

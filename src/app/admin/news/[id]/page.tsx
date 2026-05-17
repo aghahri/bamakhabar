@@ -21,6 +21,10 @@ export default async function EditNewsPage({
   const reporterNeighborhoodId = session.type === 'user' ? session.neighborhoodId : null;
   const isReporter = session.type === 'user' && session.role === 'REPORTER';
   if (isReporter && news.neighborhoodId !== reporterNeighborhoodId) notFound();
+  // خبرنگار فقط اخبار خودش را که هنوز تایید نشده‌اند می‌تواند ویرایش کند
+  if (isReporter && (news.createdById !== session.id || news.reviewStatus === 'APPROVED')) {
+    notFound();
+  }
 
   return (
     <div>

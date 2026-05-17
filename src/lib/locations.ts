@@ -168,7 +168,7 @@ export async function getNeighborhoodBySlug(
     where: { provinceSlug: province.slug, citySlug: city.slug },
     include: {
       news: {
-        where: { published: true },
+        where: { published: true, reviewStatus: 'APPROVED' },
         orderBy: { createdAt: 'desc' },
         include: { categories: true },
       },

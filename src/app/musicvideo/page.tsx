@@ -18,6 +18,7 @@ export default async function MusicVideoPage() {
   const news = await prisma.news.findMany({
     where: {
       published: true,
+      reviewStatus: 'APPROVED',
       categories: { some: { id: category.id } },
     },
     orderBy: { createdAt: 'desc' },

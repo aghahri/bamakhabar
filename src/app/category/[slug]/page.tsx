@@ -39,6 +39,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     where: {
       categories: { some: { id: category.id } },
       published: true,
+      reviewStatus: 'APPROVED',
     },
     orderBy: { createdAt: 'desc' },
     take: 24,
