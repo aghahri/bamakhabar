@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { NewsImage } from '@/components/NewsImage';
+import { ShareButtons } from '@/components/ShareButtons';
 import { renderBody } from '@/lib/sanitize';
 import { toPersianDigits } from '@/lib/persian';
 
@@ -228,6 +229,10 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
         className="prose prose-lg max-w-none text-gray-800 leading-relaxed"
         dir="rtl"
         dangerouslySetInnerHTML={{ __html: htmlBody }}
+      />
+      <ShareButtons
+        title={news.title}
+        url={`${(process.env.NEXT_PUBLIC_SITE_URL || 'https://bamakhabar.com').replace(/\/$/, '')}/news/${encodeURIComponent(news.slug)}`}
       />
     </article>
   );
