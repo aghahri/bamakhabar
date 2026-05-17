@@ -36,13 +36,20 @@ export function NewsImage({ src, alt, fill, className, sizes }: NewsImageProps) 
   const finalSrc = isFallback ? DEFAULT_NEWS_IMAGE : resolved;
   const imageSrc = getImageSrc(finalSrc);
 
+  // قاب‌بندی یکدست: تصویر همیشه کل کادر را پر می‌کند و از مرکز برش می‌خورد.
+  // اینگونه تصاویر ۱۶:۹ بدون نوار سیاه/لتربکس و بدون کشیدگی، و سایر نسبت‌ها
+  // به‌صورت برش‌خورده از مرکز نمایش داده می‌شوند (به‌جای اتکا به کلاس فراخوان).
+  const fitClass = 'object-cover object-center';
+  const fillClass = fill ? 'absolute inset-0 h-full w-full' : '';
+  const mergedClass = [fillClass, fitClass, className].filter(Boolean).join(' ');
+
   if (isFallback) {
     return (
       <Image
         src={DEFAULT_NEWS_IMAGE}
         alt={alt}
         fill={fill}
-        className={className}
+        className={mergedClass}
         sizes={sizes}
       />
     );
@@ -54,9 +61,8 @@ export function NewsImage({ src, alt, fill, className, sizes }: NewsImageProps) 
       <img
         src={imageSrc}
         alt={alt}
-        className={fill ? `absolute inset-0 w-full h-full ${className ?? ''}` : className}
-        style={fill ? { objectFit: 'cover' } : undefined}
-        sizes={sizes}
+        className={mergedClass}
+        decoding="async"
         onError={() => setError(true)}
         loading="lazy"
       />
@@ -68,7 +74,7 @@ export function NewsImage({ src, alt, fill, className, sizes }: NewsImageProps) 
       src={finalSrc}
       alt={alt}
       fill={fill}
-      className={className}
+      className={mergedClass}
       sizes={sizes}
       onError={() => setError(true)}
     />
