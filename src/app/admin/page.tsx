@@ -15,6 +15,13 @@ const REVIEW_BADGE: Record<ReviewStatus, { text: string; cls: string }> = {
   NEEDS_REVISION: { text: 'نیاز به اصلاح', cls: 'bg-red-100 text-red-800' },
 };
 
+const STATUS_TABS: { value: 'all' | ReviewStatus; label: string }[] = [
+  { value: 'all', label: 'همه' },
+  { value: 'PENDING', label: 'در انتظار تایید' },
+  { value: 'NEEDS_REVISION', label: 'نیاز به اصلاح' },
+  { value: 'APPROVED', label: 'تایید شده' },
+];
+
 export const dynamic = 'force-dynamic';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -22,7 +29,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string }>;
+  searchParams: Promise<{ from?: string; to?: string; status?: string }>;
 }) {
   const session = await getSession();
   if (!session) redirect('/admin/login');
@@ -53,12 +60,43 @@ export default async function AdminPage({
   const news = await prisma.news.findMany({
     where,
     orderBy: { createdAt: 'desc' },
-    include: { categories: true, neighborhood: true },
+    include: {
+      categories: true,
+      neighborhood: true,
+      createdBy: { select: { id: true, name: true, username: true } },
+    },
   });
 
   const canReview =
     session.type === 'admin' ||
     (session.type === 'user' && (session.role === 'ADMIN' || session.role === 'EDITOR'));
+
+  const activeStatus =
+    sp.status && STATUS_TABS.some((t) => t.value === sp.status)
+      ? (sp.status as 'all' | ReviewStatus)
+      : 'all';
+  const counts = {
+    all: news.length,
+    PENDING: news.filter((n) => n.reviewStatus === 'PENDING').length,
+    NEEDS_REVISION: news.filter((n) => n.reviewStatus === 'NEEDS_REVISION').length,
+    APPROVED: news.filter((n) => n.reviewStatus === 'APPROVED').length,
+  };
+  const pendingNews = news.filter((n) => n.reviewStatus === 'PENDING');
+  const filteredNews =
+    activeStatus === 'all' ? news : news.filter((n) => n.reviewStatus === activeStatus);
+
+  function tabHref(value: 'all' | ReviewStatus) {
+    const params = new URLSearchParams();
+    if (sp.from) params.set('from', sp.from);
+    if (sp.to) params.set('to', sp.to);
+    if (value !== 'all') params.set('status', value);
+    const qs = params.toString();
+    return `/admin${qs ? `?${qs}` : ''}`;
+  }
+
+  function authorOf(n: (typeof news)[number]) {
+    return n.createdBy?.name || n.createdBy?.username || null;
+  }
 
   return (
     <div>
@@ -70,15 +108,85 @@ export default async function AdminPage({
         toStr={toStr}
         scopeNeighborhoodId={scopeNeighborhoodId}
       />
-      <Link
-        href="/admin/news/new"
-        className="btn-primary inline-block mb-6"
-      >
+      <Link href="/admin/news/new" className="btn-primary inline-block mb-6">
         افزودن خبر جدید
       </Link>
+
+      {/* بخش برجستهٔ خبرهای در انتظار تایید — بدون اسکرول افقی، واکنش‌گرا */}
+      {pendingNews.length > 0 && (
+        <section className="mb-8 rounded-lg border-2 border-amber-300 bg-amber-50 p-4">
+          <h2 className="text-lg font-bold text-amber-900 mb-1 flex items-center gap-2">
+            خبرهای در انتظار تایید
+            <span className="bg-amber-500 text-white text-xs rounded-full px-2 py-0.5 tabular-nums">
+              {formatPersianNumber(pendingNews.length)}
+            </span>
+          </h2>
+          <p className="text-xs text-amber-800 mb-3">
+            این خبرها توسط خبرنگاران ارسال شده‌اند و تا تایید، در سایت نمایش داده نمی‌شوند.
+          </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {pendingNews.map((n) => {
+              const author = authorOf(n);
+              return (
+                <div
+                  key={n.id}
+                  className="bg-white rounded-lg shadow-sm border border-amber-200 p-4"
+                >
+                  <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{n.title}</h3>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-gray-500">
+                    {author && <span>نویسنده: {author}</span>}
+                    {n.neighborhood && <span>· محله: {n.neighborhood.name}</span>}
+                    <span>· {new Date(n.createdAt).toLocaleDateString('fa-IR')}</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-100 text-sm">
+                    {canReview && <ReviewActions id={n.id} status="PENDING" />}
+                    <Link
+                      href={`/admin/news/${n.id}`}
+                      className="text-[var(--bama-primary)] hover:underline"
+                    >
+                      ویرایش
+                    </Link>
+                    <Link
+                      href={`/news/${n.slug}`}
+                      target="_blank"
+                      className="text-blue-600 hover:underline"
+                    >
+                      مشاهده
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* تب‌های فیلتر وضعیت بازبینی */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {STATUS_TABS.map((t) => {
+          const active = t.value === activeStatus;
+          return (
+            <Link
+              key={t.value}
+              href={tabHref(t.value)}
+              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                active
+                  ? 'bg-[var(--bama-primary)] text-white border-[var(--bama-primary)]'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              {t.label}
+              <span className="mr-1 text-xs tabular-nums opacity-80">
+                ({formatPersianNumber(counts[t.value])})
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+
       {/* Mobile: card layout */}
       <div className="md:hidden space-y-3">
-        {news.map((n) => (
+        {filteredNews.map((n) => (
           <div key={n.id} className="bg-white rounded-lg shadow p-4">
             <h3 className="font-bold text-gray-900 text-sm line-clamp-2">{n.title}</h3>
             <div className="flex flex-wrap gap-1 mt-2">
@@ -128,7 +236,7 @@ export default async function AdminPage({
 
       {/* Desktop: table layout */}
       <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
-        <table className="w-full min-w-[920px] divide-y divide-gray-200">
+        <table className="w-full min-w-[860px] divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">عنوان</th>
@@ -138,11 +246,13 @@ export default async function AdminPage({
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">بازبینی</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">بازدید</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">عملیات</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap sticky left-0 bg-gray-50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]">
+                عملیات
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {news.map((n) => (
+            {filteredNews.map((n) => (
               <tr key={n.id}>
                 <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{n.title}</td>
                 <td className="px-4 py-3 text-sm">
@@ -182,37 +292,36 @@ export default async function AdminPage({
                 <td className="px-4 py-3 text-sm text-gray-600 tabular-nums">
                   {formatPersianNumber(n.viewCount)}
                 </td>
-                <td className="px-4 py-3 text-sm whitespace-nowrap">
-                  <Link
-                    href={`/admin/news/${n.id}`}
-                    className="text-[var(--bama-primary)] hover:underline"
-                  >
-                    ویرایش
-                  </Link>
-                  {' · '}
-                  <Link
-                    href={`/news/${n.slug}`}
-                    target="_blank"
-                    className="text-blue-600 hover:underline"
-                  >
-                    مشاهده
-                  </Link>
-                  {' · '}
-                  {canReview && (
-                    <>
-                      <ReviewActions id={n.id} status={n.reviewStatus as ReviewStatus} />
-                      {' · '}
-                    </>
-                  )}
-                  <DeleteNewsButton id={n.id} title={n.title} />
+                <td className="px-4 py-3 text-sm sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <Link
+                      href={`/admin/news/${n.id}`}
+                      className="text-[var(--bama-primary)] hover:underline"
+                    >
+                      ویرایش
+                    </Link>
+                    <Link
+                      href={`/news/${n.slug}`}
+                      target="_blank"
+                      className="text-blue-600 hover:underline"
+                    >
+                      مشاهده
+                    </Link>
+                    {canReview && <ReviewActions id={n.id} status={n.reviewStatus as ReviewStatus} />}
+                    <DeleteNewsButton id={n.id} title={n.title} />
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {news.length === 0 && (
+      {news.length === 0 ? (
         <p className="text-center text-gray-500 py-8">خبری ثبت نشده است.</p>
+      ) : (
+        filteredNews.length === 0 && (
+          <p className="text-center text-gray-500 py-8">خبری با این وضعیت یافت نشد.</p>
+        )
       )}
     </div>
   );
